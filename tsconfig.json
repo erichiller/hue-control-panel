@@ -1,0 +1,33 @@
+// tsconfig official documentation --> https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2016",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"removeComments": false,
+		"noImplicitAny": false,
+		"noLib": false,
+		"outDir": "bin",
+		"allowUnreachableCode": false,
+		"forceConsistentCasingInFileNames": true,
+		"listFiles": true,
+		"pretty": true,
+		"version": true,
+		"diagnostics": true
+	},
+	"include": [
+		"**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"doc",
+		"data"
+	]
+}
+// http://www.typescriptlang.org/docs/handbook/compiler-options.html
+// for producttion remove the last group, and add
+// * "removeComments": true,
+// try `--watch` mode
