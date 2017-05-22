@@ -17,6 +17,8 @@ console.log(svg.dom.window.document.getElementsByTagName("svg")[0].attributes.le
 console.log("svg.get:")
 console.log(svg.retrieve())
 
+svg.savePNG("dash.png")
+
 // let foo = new JSDOM
 
 // declare namespace NodeJS {

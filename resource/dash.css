@@ -1,0 +1,11 @@
+
+
+svg {
+	background-color: green;
+}
+
+rect {
+	stroke: red;
+	stroke-width: 5;
+	fill: purple;
+}
