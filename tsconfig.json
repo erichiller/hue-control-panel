@@ -16,7 +16,15 @@
 		"listFiles": true,
 		"pretty": true,
 		"version": true,
-		"diagnostics": true
+		"diagnostics": true,
+		"lib": [
+			"es2017",
+			"dom"
+
+		]
+		// ,"typeRoots": [
+		// 	"./typings"
+		// ]
 	},
 	"include": [
 		"**/*"

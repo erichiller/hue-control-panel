@@ -5,8 +5,10 @@
   "main": "bin/hue.js",
   "scripts": {
     "build": "tsc && copyfiles -f ./src/index.html bin && copyfiles resource/* bin",
-    "prestart": "npm run build",
-    "start": "echo done",
+    "prestart_": "npm run build",
+    "start_": "echo done",
+    "dash": "tsc ./src/dash.ts",
+    "start": "ts-node.cmd .\\src\\dash.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,7 +22,12 @@
   },
   "homepage": "https://github.com/erichiller/hue-control-panel#readme",
   "devDependencies": {
+    "@types/jquery": "^2.0.45",
+    "@types/jsdom": "^2.0.30",
+    "@types/node-fetch": "^1.6.7",
     "copyfiles": "^1.2.0",
+    "jsdom": "^10.1.0",
+    "node-fetch": "^1.6.3",
     "typescript": "^2.3.2"
   }
 }
