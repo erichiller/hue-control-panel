@@ -1,8 +1,8 @@
 
 
-/*svg {*/
-	/*background-color: green;*/
-/*}*/
+svg {
+	background-color: #356997;
+}
 
 rect {
 	stroke: red;
@@ -19,6 +19,9 @@ rect {
 }
 
 #clock {
-	text-anchor:	"middle";
+	text-anchor:	middle;
     font-family: 	"EkMukta-Light";
-	font-size: 		"84px";
+	font-size: 		72pt;
+	fill:  			#eeeeee;
+	
+}

@@ -4,6 +4,25 @@ import { svgPanel } from './svg';
 let svg = new svgPanel(320, 480);
 
 
+function getTime(): string {
+	// postMeridiem = false
+	let suffix = "a"
+	let hour = new Date().getHours();
+	if ( hour > 12 ) {
+		hour -= 12
+		// postMeridiem = true
+		suffix = "p"
+	}
+	let minute = new Date().getMinutes();
+
+	return hour + ":" + minute + suffix
+}
+
+// draw the clock
+svg.drawText( getTime(), 160, 200, "clock");
+
+// draw weather image
+svg.drawImage("http://l.yimg.com/a/i/us/we/52/32.gif", 160,300)
 
 console.log("svg.element.getAtrribute:")
 console.log(svg.element.getAttribute)
@@ -17,9 +36,9 @@ console.log(svg.dom.window.document.getElementsByTagName("svg")[0].attributes.le
 console.log("svg.get:")
 console.log(svg.retrieve())
 
+// save the file
 svg.savePNG("dash.png")
 
-// let foo = new JSDOM
 
 // declare namespace NodeJS {
 // 	export interface Global {
