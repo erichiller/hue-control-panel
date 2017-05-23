@@ -1,11 +1,24 @@
 
 
-svg {
-	background-color: green;
-}
+/*svg {*/
+	/*background-color: green;*/
+/*}*/
 
 rect {
 	stroke: red;
 	stroke-width: 5;
 	fill: purple;
 }
+
+
+@font-face {
+    font-family: 'EkMukta-Light';
+    src: url('resource/EkMukta-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+#clock {
+	text-anchor:	"middle";
+    font-family: 	"EkMukta-Light";
+	font-size: 		"84px";

@@ -19,8 +19,7 @@ export class svgPanel {
 	element: Element;
 	namespace: string = "http://www.w3.org/2000/svg";
 	xmlDeclaration: string =
-	'<?xml version="1.0" encoding="UTF-8" standalone="no"?>' +
-	'<?xml-stylesheet href="resource/dash.css" type="text/css"?>';
+	'<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
 
 	elements: HTMLElement[] = [];
 
@@ -50,6 +49,8 @@ export class svgPanel {
 		el.setAttribute('height', "90");
 		el.setAttribute('fill', "green");
 		this.element.appendChild(el);
+
+		this.drawText("hello world",20,20);
 
 
 
@@ -108,12 +109,25 @@ export class svgPanel {
 		// this.append(defs)
 	}
 
-	drawText(text: string, x: number, y: number) {
+	drawText(text: string, x: number, y: number, id?: string) {
+
+		text=""
+
+		let el2 = this.document.createElementNS(this.namespace, 'text');
+		el2.setAttribute('x', "20");
+		el2.setAttribute('y', "80");
+		el2.setAttribute('font-size', "24")
+		el2.setAttribute('font-family', "Arial")
+		el2.textContent = "Arial=" + text
+		console.log("appending drawText(" + text + ")")
+		this.append(el2)
+
 		let el = this.document.createElementNS(this.namespace, 'text');
-		el.setAttribute('x', "20");
-		el.setAttribute('y', "20");
-		el.setAttribute('font-size', "24")
+		el.setAttribute('x', "160");
+		el.setAttribute('y', "200");
+		el.setAttribute('font-size', "84")
 		el.setAttribute('font-family', "EkMukta-Light")
+		el.setAttribute('text-anchor', "middle")
 		el.textContent = text
 		console.log("appending drawText("+text+")")
 		this.append(el)

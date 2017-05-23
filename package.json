@@ -28,5 +28,8 @@
     "jsdom": "^10.1.0",
     "node-fetch": "^1.6.3",
     "typescript": "^2.3.2"
+  },
+  "dependencies": {
+    "svg2png": "^4.1.1"
   }
 }
