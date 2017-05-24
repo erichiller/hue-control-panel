@@ -4,11 +4,17 @@ svg {
 	background-color: #356997;
 }
 
+image {
+	image-rendering: optimizeQuality;
+}
+
 rect {
 	stroke: red;
 	stroke-width: 5;
 	fill: purple;
 }
+
+
 
 
 @font-face {
@@ -25,3 +31,4 @@ rect {
 	fill:  			#eeeeee;
 	
 }
+

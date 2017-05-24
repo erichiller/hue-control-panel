@@ -5,10 +5,10 @@
   "main": "bin/hue.js",
   "scripts": {
     "build": "tsc && copyfiles -f ./src/index.html bin && copyfiles resource/* bin",
-    "prestart_": "npm run build",
-    "start_": "echo done",
-    "dash": "tsc ./src/dash.ts",
-    "start": "ts-node.cmd .\\src\\dash.ts",
+    "prestart": "npm run build",
+    "start": "echo done",
+    "dash-build": "tsc ./src/dash.ts",
+    "dash-run": "ts-node.cmd .\\src\\dash.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,11 +25,12 @@
     "@types/jquery": "^2.0.45",
     "@types/node-fetch": "^1.6.7",
     "copyfiles": "^1.2.0",
-    "jsdom": "^10.1.0",
-    "node-fetch": "^1.6.3",
     "typescript": "^2.3.2"
   },
   "dependencies": {
+    "image-size": "^0.5.4",
+    "jsdom": "^10.1.0",
+	"node-fetch": "^1.6.3",
     "svg2png": "^4.1.1"
   }
 }

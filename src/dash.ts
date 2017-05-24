@@ -1,8 +1,6 @@
 import fetch, { Response } from "node-fetch";
 import { svgPanel } from './svg';
 
-let svg = new svgPanel(320, 480);
-
 
 function getTime(): string {
 	// postMeridiem = false
@@ -18,26 +16,36 @@ function getTime(): string {
 	return hour + ":" + minute + suffix
 }
 
-// draw the clock
-svg.drawText( getTime(), 160, 200, "clock");
+async function constructDash() {
 
-// draw weather image
-svg.drawImage("http://l.yimg.com/a/i/us/we/52/32.gif", 160,300)
+	let svg = new svgPanel(320, 480);
+	// draw the clock
+	svg.drawText(getTime(), 160, 200, "clock");
 
-console.log("svg.element.getAtrribute:")
-console.log(svg.element.getAttribute)
+	// draw weather image
+	await svg.centerDrawImage("http://l.yimg.com/a/i/us/we/52/32.gif", 300)
 
-console.log("svg.element.attributes.length:")
-console.log(svg.element.attributes.length)
+	console.log("svg.element.getAtrribute:")
+	console.log(svg.element.getAttribute)
 
-console.log("svg.//getElementsByTagName//.attributes.length:")
-console.log(svg.dom.window.document.getElementsByTagName("svg")[0].attributes.length)
+	console.log("svg.element.attributes.length:")
+	console.log(svg.element.attributes.length)
 
-console.log("svg.get:")
-console.log(svg.retrieve())
+	console.log("svg.//getElementsByTagName//.attributes.length:")
+	console.log(svg.dom.window.document.getElementsByTagName("svg")[0].attributes.length)
 
-// save the file
-svg.savePNG("dash.png")
+	console.log("svg.get:")
+	console.log(svg.retrieve())
+
+	// save the file
+	svg.savePNG("dash.png")
+
+}
+
+constructDash();
+console.log("done.")
+
+
 
 
 // declare namespace NodeJS {

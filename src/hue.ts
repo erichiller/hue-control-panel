@@ -1,8 +1,12 @@
-let defaultColor = "#0000ff";
+
 
 let userId = "XO3rCiWc269m6rk5wv1OZzudn9PCkAY-JcRMby8x";
 let bridgeIP = "192.168.10.44";
 let lightID = 11;
+
+// replace
+let defaultColor = "#0000ff";
+
 
 window.addEventListener("load", startup, false);
 
@@ -110,19 +114,6 @@ function hexToRGB(hex: string): [number ,number, number] {
 	let blue: number = parseInt(b, 16)
 	return [red, green, blue]
 }
-
-
-
-
-//dep
-function watchHueColor(event) {
-	console.log("watchHueColor() on event=" + event);
-	document.querySelectorAll("p").forEach(function (p) {
-		p.style.color = event.target.value;
-	});
-}
-
-
 
 
 

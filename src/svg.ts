@@ -1,11 +1,11 @@
 
-// import { jsdom } from 'jsdom';
 import { JSDOM } from "jsdom";
 const svg2png = require("svg2png");
 const fs = require('fs');
 const path = require('path');
-
-
+const sizeOf = require('image-size');
+const url = require('url');
+const http = require('http');
 
 // SVG full elements index: https://www.w3.org/TR/SVG/eltindex.html
 
@@ -29,9 +29,10 @@ export class svgPanel {
 				this.xmlDeclaration
 			,
 			{
-				contentType: "image/svg+xml",
+				resources:		"usable",
+				contentType:	"image/svg+xml",
 			});
-
+		
 		this.document = this.dom.window.document;
 
 		this.element = this.document.createElementNS(this.namespace,"svg");
@@ -72,7 +73,8 @@ export class svgPanel {
 	retrieve(): string {
 		return (
 			this.xmlDeclaration + "\n" + 
-			this.dom.serialize()
+			// this.dom.serialize()
+			this.element.outerHTML
 		)
 	}
 
@@ -97,47 +99,50 @@ export class svgPanel {
 	}
 
 
+	async centerDrawImage(srcURL: string, y: number){
+		let [width, height] = await getImageSize(srcURL)
+		let x = (this.width - width) / 2;
+		this.drawImage(srcURL,x,y,width,height);
+	}
 
-	getImageDimensions(url) {
-
-	return new Promise(resolve => {
-		setTimeout(() => {
-			resolve(url);
-		}, 2000);
-	});
-}
-
-	drawImage(srcURL: string, x: number, y: number, width?: number, height?: number){
-
-
-		new Promise(resolve => {
-			
-		if( !height || !width ){
-			// lookup height and width
-			// window.URL = window.URL || window.webkitURL;
-			let image = new Image();
-			image.src = window.URL.createObjectURL( srcURL );
-			image.onload = () => {
-				width = image.naturalWidth;
-				height = image.naturalHeight;
-
-				window.URL.revokeObjectURL( image.src );
-			}
-
-
-		}
+	async drawImage(srcURL: string, x: number, y: number, width?: number, height?: number){
+		
 		let el = this.document.createElementNS(this.namespace, 'image');
 		el.setAttribute('x', `${x}`);
 		el.setAttribute('y', `${y}`);
 		el.setAttribute('width', `${width}`);
 		el.setAttribute('height', `${height}`);
 		el.setAttribute('xlink:href', `${srcURL}`);
+		this.element.appendChild(el);
+	}
 
-		
-
+	
 }
 
 
+
+
+////////
+// Utility functions
+////////
+
+function getImageSize(imgUrl: string): Promise<[number, number]> {
+	return new Promise((resolve, reject) => {
+		let options = url.parse(imgUrl);
+		http.get(options, function (response) {
+			let chunks = [];
+			response.on('data', function (chunk) {
+				chunks.push(chunk);
+			}).on('end', function () {
+				let buffer = Buffer.concat(chunks);
+				let size = sizeOf(buffer);
+				console.log("returning...")
+				console.log(size)
+				resolve([size.width, size.height])
+			});
+		});
+	});
+}
 
 
 // interface Element {
