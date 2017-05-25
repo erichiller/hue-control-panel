@@ -98,7 +98,6 @@ export class svgPanel {
 		return fs.readFileSync('resource/dash.css', 'utf8');
 	}
 
-
 	async centerDrawImage(srcURL: string, y: number){
 		let [width, height] = await getImageSize(srcURL)
 		let x = (this.width - width) / 2;
