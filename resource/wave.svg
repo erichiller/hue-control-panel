@@ -14,5 +14,5 @@
 			]]></style>
 		</defs>
 
-	<use xlink:href="#wave" />
+	<use href="#wave" />
 </svg>
