@@ -7,18 +7,54 @@
 	<link rel="stylesheet" href="resource/hue.css">
 </head>
 <script src="hue.js"></script>
-<body>
-	<div id="back">Return</div>
-	<!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color -->
-	<input id="hueColor" type="color">
-	<input id="discoLight" type="button">
+<script src="resource/jscolor.js"></script>
+</script>
+<body id="f1_container">
 
-	<input id="turnLightOn" type="button" value=" placeholder for turning of lights">
+	<div id="f1_card">
+		<div class="front face">
+			<div id="navbar">
+				<div class="button shine mdl2-page-left navback">
+					<p>Back</p>
+				</div>
+				<div class="button shine mdl2-home navtoplevel">
+					<p>Home</p>
+				</div>
+				<div class="button navlayout shine mdl2-view-all" onclick="navigate('home')">
+					<p>View</p>
+				</div>
+			</div><!-- END div : navbar -->
+			<div class="main">
+				<h1>Idea Lamp</h1>
 
+				<div class="colorpicker">
+					<!--
+						 'onchange' fires after the mouse button is released
+						 onFineChange gets executed more often, even on the finest change as we move mouse over the picker controls.
+					-->
+					<input id="status_rgb_red" class="red short" onchange="setRGB('bgcolor', this.value, null, null)" data-cip-id="status_rgb_red">
+					<input id="status_rgb_green" class="green short" onchange="setRGB('bgcolor', null, this.value, null)" data-cip-id="status_rgb_green">
+					<input id="status_rgb_blue" class="blue short" onchange="setRGB('bgcolor', null, null, this.value)" data-cip-id="status_rgb_blue">
 
-	<!--<input onchange="changeIntensity()" type="range"> -->
+					<input class="jscolor {onFineChange:'setHueColor(this)'}" data-jscolor="{padding: 5, borderWidth:1}"></input>
+				</div>
 
-	<p>hello 2world</p>
+			</div>
+		</div><!-- END div : class="front face" -->
+
+		<div class="back face center">
+			<p>This is nice for exposing more information about an image.</p>
+			<p>Any content can go here.</p>
+		</div>
+	</div><!--END div : f1_card -->
+
+	<div id="footer" class="button mdl2-quiet-hours shine">
+		<p>Sleep</p>
+	</div>
+
 </body>
 
 </html>
+
+
+

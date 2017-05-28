@@ -1,0 +1,26 @@
+@font-face {
+    font-family: 'SegoeUI';
+    src: url('resource/segoe/segoeui.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SegoeUI-Icons';
+    src: url('resource/segoe/segmdl2.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+@import 'segoe/mdl2.css';
+
+.mdl2-page-left::before  { content: '\e760'; }
+.mdl2-quiet-hours::before{ content: '\e708'; }
+
+
+@font-face {
+    font-family: 'EkMukta-Light';
+    src: url('EkMukta-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}

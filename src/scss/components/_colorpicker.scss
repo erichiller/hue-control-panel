@@ -1,0 +1,32 @@
+input.short {
+    width: 3em;
+    text-align: center !important;
+}
+$colorpicker-background-lighten:	10%;
+
+$colorpicker-green:					#9F9; 
+.colorpicker input.green {
+    border-color: $colorpicker-green;
+    background-color: lighten($colorpicker-green, $colorpicker-background-lighten);
+    color: $colorpicker-green;
+}
+
+.colorpicker input {
+    // color: #FFF;
+    border: 1px solid #999;
+    padding: 2px 5px;
+}
+
+$colorpicker-red:					#F99; 
+.colorpicker input.red  {
+    border-color: $colorpicker-red;
+    background: lighten($colorpicker-red, $colorpicker-background-lighten);
+    color: $colorpicker-red;
+}
+
+$colorpicker-blue:					#9CF; 
+.colorpicker input.blue {
+    border-color: $colorpicker-blue;
+	background: lighten($colorpicker-blue, $colorpicker-background-lighten);
+    color: $colorpicker-blue;
+}

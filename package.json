@@ -4,7 +4,7 @@
   "description": "web browser only hue light control - designed for onscreen embedded raspberry pi usage",
   "main": "bin/hue.js",
   "scripts": {
-    "build": "tsc && copyfiles -f ./src/index.html bin && copyfiles resource/* bin",
+    "build": "tsc && copyfiles -f ./src/index.html bin && copyfiles resource/* bin && copyfiles resource/segoe/* bin && node-sass.cmd ./src/scss/hue.scss ./bin/resource/hue.css",
     "prestart": "npm run build",
     "start": "echo done",
     "dash-build": "tsc ./src/dash.ts",
@@ -30,7 +30,7 @@
   "dependencies": {
     "image-size": "^0.5.4",
     "jsdom": "^10.1.0",
-	"node-fetch": "^1.6.3",
+    "node-fetch": "^1.6.3",
     "svg2png": "^4.1.1"
   }
 }

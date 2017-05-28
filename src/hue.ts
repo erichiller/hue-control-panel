@@ -14,7 +14,7 @@ window.addEventListener("load", startup, false);
 function startup() {
 	let hueColor: HTMLFormElement = <HTMLFormElement> document.querySelector("#hueColor");
 	hueColor.value = defaultColor;
-	hueColor.addEventListener("change", setHueColor, false);
+	// hueColor.addEventListener("change", setHueColor, false);
 	hueColor.select(); // pretty sure this selects the element for user input
 
 	let discoLight: HTMLFormElement = <HTMLFormElement>document.querySelector("#discoLight");
@@ -28,10 +28,16 @@ function startup() {
 }
 
 
-function setHueColor(event: Event) {
-	console.log("setHueColor("+event+")");
-	console.log((event.target as HTMLFormElement).value)
-	DEFAULT_HOME_LIGHT.setColorHex((event.target as HTMLFormElement).value)
+function setHueColor(jscolor) {
+	console.log(jscolor.toHexString())
+	DEFAULT_HOME_LIGHT.setColorHex(jscolor.toHexString())
+
+	document.getElementById('status_rgb_red').innerHTML =
+		Math.round(jscolor.rgb[0]).toString();
+	document.getElementById('status_rgb_green').innerHTML =
+		Math.round(jscolor.rgb[1]).toString();
+	document.getElementById('status_rgb_blue').innerHTML =
+		Math.round(jscolor.rgb[2]).toString();
 }
 
 

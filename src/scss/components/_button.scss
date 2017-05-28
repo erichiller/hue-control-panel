@@ -1,0 +1,43 @@
+.button {
+	margin: 2px;
+	padding: 0 .2pc;
+	@extend %translucent-div;
+	box-shadow: 3px 0px 20px 0px #f2f2f2;
+	position: relative;
+	overflow: hidden;
+	cursor: pointer;
+}
+.button p {
+	text-align: center;
+	display: inline-block;
+	position: relative;
+	top: -.5pc;
+	font-weight: bold;
+	font-family: "EkMukta-Light";
+}
+
+.button.navback {
+	width: 28%
+}
+.button.navtoplevel {
+	width: 38%;
+	margin: 2px auto;
+	text-align: center;
+}
+.button.navlayout {
+	width: 28%;
+}
+
+#navbar {
+	width:100%
+}
+
+#footer {
+	position:fixed;
+	display: block;
+	width: 98%;
+	left:0px;
+	bottom:0px;
+	padding: 0 auto;
+	text-align: center;
+}
