@@ -1,0 +1,79 @@
+// html, body { height: 100%; }
+// body {
+//   overflow: hidden;
+// }
+
+// #container {
+  // display: none;
+// }
+
+svg {
+//   position: absolute;
+//   width: 2240px;
+//   animation: wave 7s cubic-bezier( 0.36, 0.45, 0.63, 0.53) infinite;
+//   transform: translate3d(0, 0, 0);
+  // border: 1px solid black
+}
+
+$opacity_low: 0;
+$opacity_mid: .4;
+$opacity_high: 1;
+$animation-color-time: 2s;
+// $animation-timing: cubic-bezier( 0.36, 0.45, 0.63, 0.53);
+$animation-timing: linear;
+
+$color_A: #c80101; // red
+$color_B: #3d7f27; // green
+$color_C: #7486e1; // blue
+
+// this is in order of stops on y axis; time on x axis
+$stop_colors: $color_A $color_C $color_B $color_A,
+              $color_B $color_A $color_C $color_B,
+              $color_C $color_B $color_A $color_C,
+              $color_A $color_C $color_B $color_A;
+
+// this is in order of stops on y axis; time on x axis
+$stop_opacity:  $opacity_low $opacity_high $opacity_mid $opacity_low,
+                $opacity_mid $opacity_low $opacity_high $opacity_mid,
+                $opacity_high $opacity_mid $opacity_low $opacity_high,
+                $opacity_low $opacity_high $opacity_mid $opacity_low;
+
+$stop_times:  0% 33% 66% 100%;
+
+path {
+  stroke: url(#ColorWaveGradient);
+  stroke-width: 12;
+  stroke-linecap: square;
+}
+
+@for $stop from 1 through length($stop_times) {
+  #ColorWaveGradient .stop#{$stop} {
+    animation: gradient-#{$stop} $animation-color-time $animation-timing infinite;
+  transform: translate3d(0, 0, 0);
+  }
+  @keyframes gradient-#{$stop} {
+    @for $i from 1 through length($stop_times) {
+     #{nth($stop_times, $i)} {
+       stop-color: nth( nth( $stop_colors , $stop ) , $i );
+       stop-opacity: nth( nth( $stop_opacity , $stop ) , $i );
+      }
+    }
+  }
+}
+
+
+
+
+@for $i from 1 through 3 {
+  @keyframes wave_#{$i} {
+    0% {
+      transform: translate( #{-($i - 1)*50 }px , 0);
+    }
+    100% {
+      transform: translate( #{ -1200 - (($i - 1)*50) }px , 0px);
+    }
+  }
+  .hero:nth-of-type( #{$i} ) {
+    animation: wave_#{$i} #{$i*10}s linear infinite;
+	}
+}
