@@ -1,0 +1,32 @@
+.flex_box {
+	display: flex;
+	flex-flow: column;
+}
+
+// .flex .row {
+//   border: 1px dotted grey;
+// }
+
+.flex_box #header {
+	flex: 0 1 auto;
+	/* The above is shorthand for:
+	flex-grow: 0,
+	flex-shrink: 1,
+	flex-basis: auto
+	*/
+}
+
+.flex_box .row-content {
+	flex: 1 1 auto;
+}
+
+.flex_box #footer {
+	flex: 0 1 auto;
+	// position:fixed;
+	// display: block;
+	// width: 98%;
+	// left:0px;
+	// bottom:0px;
+	padding: 2px 0 6px 0;
+	text-align: center;
+}

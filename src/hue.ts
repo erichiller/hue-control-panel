@@ -29,8 +29,8 @@ function startup() {
 
 
 function setHueColor(jscolor) {
-	console.log(jscolor.toHexString())
-	DEFAULT_HOME_LIGHT.setColorHex(jscolor.toHexString())
+	console.log(jscolor)
+	DEFAULT_HOME_LIGHT.setColorHex(jscolor.toHEXString())
 
 	document.getElementById('status_rgb_red').innerHTML =
 		Math.round(jscolor.rgb[0]).toString();
@@ -41,6 +41,17 @@ function setHueColor(jscolor) {
 }
 
 
+function navigate(dest: string){
+
+	switch(dest){
+		case "home":
+			document.querySelector("#main").classList.toggle("rotate");
+		break;
+		default:
+			console.log("navigation option " + dest + " does not exist");
+		break;
+	}
+}
 
 
 

@@ -1,5 +1,5 @@
 
-export const DEFAULT_BRIDGE_IP: string = "192.168.10.44";
+export const DEFAULT_BRIDGE_IP: string = "192.168.10.46";
 
 export const DEFAULT_USER_ID: string = "XO3rCiWc269m6rk5wv1OZzudn9PCkAY-JcRMby8x";
 

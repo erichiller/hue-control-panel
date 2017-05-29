@@ -1,14 +1,20 @@
 
-
-
-.main h1 {
+#main h1 {
 	font-weight: 500;
 	font-size: 1.7pc;
 	font-family: "EkMukta-Light";
-	margin: .7pc 0 0 0; // top is 1pc
-	border-top-left-radius: 1pc;
-	border-top-right-radius: 1pc;
+	margin: .5pc auto 0 1%; // <top> <right> <bottom> <left>
+	border-top-left-radius: .6pc;
+	border-top-right-radius: .6pc;
+	border-bottom: 0;
 	padding: .1pc .4pc .1pc .4pc;
 	@extend %translucent-div;
 
+}
+
+#main .content {
+	width: 98%;
+	margin: 0 1%;
+	padding: .1pc;
+	@extend %translucent-div;
 }

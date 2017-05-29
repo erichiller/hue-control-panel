@@ -2,13 +2,15 @@
 @import '../../node_modules/normalize.css/normalize.css';
 // @import 'base/variables';
 // @import 'base/utilities';
-@import 'base/global';
 @import 'base/font';
-@import 'base/common';
+@import 'base/global';
 
 @import 'components/button';
 @import 'components/button_shine';
 @import 'components/card_rotate';
 @import 'components/colorpicker';
+@import 'components/common';
 
+@import 'page/layout';
 @import 'page/main';
+@import 'page/img_layout';

@@ -1,4 +1,4 @@
-import { DEFAULT_HOME_LIGHT_ID } from './config';
+import { DEFAULT_HOME_LIGHT_ID } from './_config';
 import { Bridge } from './bridge';
 import { lightObject , LightEffect } from './lightObject';
 import { Color , ColorCIE } from './color';

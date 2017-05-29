@@ -6,7 +6,7 @@
 		"**/.hg": true,
 		"**/CVS": true,
 		"**/.DS_Store": true,
-		"**/~$**": true,
+		"**/~$*": true,
 		"bin":true
 	}
 }

@@ -9,53 +9,57 @@
 <script src="hue.js"></script>
 <script src="resource/jscolor.js"></script>
 </script>
-<body id="f1_container">
+<body id="card_container" class="flex_box">
 
-	<div id="f1_card">
+	<div id="header">
+		<div class="button shine mdl2-page-left navback">
+			<p>Back</p>
+		</div>
+		<div class="button shine mdl2-home navtoplevel">
+			<p>Home</p>
+		</div>
+		<div class="button navlayout shine mdl2-view-all" onclick="navigate('home')">
+			<p>View</p>
+		</div>
+	</div><!-- END div : navbar -->
+	<div id="main" class="card row-content">
 		<div class="front face">
-			<div id="navbar">
-				<div class="button shine mdl2-page-left navback">
-					<p>Back</p>
-				</div>
-				<div class="button shine mdl2-home navtoplevel">
-					<p>Home</p>
-				</div>
-				<div class="button navlayout shine mdl2-view-all" onclick="navigate('home')">
-					<p>View</p>
-				</div>
-			</div><!-- END div : navbar -->
-			<div class="main">
-				<!-- here the title goes ; grab this data from the layout.svg -->
-				<h1>Idea Lamp</h1>
-
+			<!-- here the title goes ; grab this data from the layout.svg -->
+			<h1>Idea Lamp</h1>
+			<div class="content">
 				<div class="colorpicker">
 					<!--
-						 'onchange' fires after the mouse button is released
-						 onFineChange gets executed more often, even on the finest change as we move mouse over the picker controls.
+						'onchange' fires after the mouse button is released
+						onFineChange gets executed more often, even on the finest change as we move mouse over the picker controls.
 					-->
-					<input id="status_rgb_red" class="red short" onchange="setRGB('bgcolor', this.value, null, null)" data-cip-id="status_rgb_red">
-					<input id="status_rgb_green" class="green short" onchange="setRGB('bgcolor', null, this.value, null)" data-cip-id="status_rgb_green">
-					<input id="status_rgb_blue" class="blue short" onchange="setRGB('bgcolor', null, null, this.value)" data-cip-id="status_rgb_blue">
+					<input id="status_rgb_red" class="red short" onchange="setRGB('bgcolor', this.value, null, null)" data-cip-id="status_rgb_red" />
+					<input id="status_rgb_green" class="green short" onchange="setRGB('bgcolor', null, this.value, null)" data-cip-id="status_rgb_green" />
+					<input id="status_rgb_blue" class="blue short" onchange="setRGB('bgcolor', null, null, this.value)" data-cip-id="status_rgb_blue" />
 
-					<input class="jscolor {onFineChange:'setHueColor(this)'}" data-jscolor="{padding: 5, borderWidth:1}"></input>
-				</div>
+					<button class="button navlayout shine mdl2-view-all jscolor" data-jscolor="{onFineChange:'setHueColor(this)',valueElement:false,styleElement:false,padding:2,borderWidth:1,position:'top'}">
+						<p>Color</p>
+					</button>
+				</div><!-- END div : class="colorpicker" -->
 
-			</div><!-- END div : class="colorpicker" -->
+				<div class="brightness">
+					<!-- brightness here ; image of lightbulb ; set to current color +/- current light -->
+				</div><!-- END div : class="brightness" -->
 
-			<div class="brightness">
-				<!-- brightness here ; image of lightbulb ; set to current color +/- current light -->
-			</div><!-- END div : class="brightness" -->
+				<div class="effects">
+					<!-- effects go here ; wave.svg! -->
+				</div><!-- END div : class="effects" -->
 
-			<div class="effects">
-				<!-- effects go here ; wave.svg! -->
-			</div><!-- END div : class="effects" -->
-
+				<div class="power">
+					<!-- power ! -->
+				</div><!-- END div : class="power" -->
+			</div><!-- END div : class="content" -->
 		</div><!-- END div : class="front face" -->
 
-		<div class="back face center">
-			<img src="resource/layout.svg" />
-		</div>
-	</div><!--END div : f1_card -->
+		<div class="back face">
+			<img id="layout" src="resource/layout.svg" />
+		</div><!-- END div : class="back face" -->
+
+	</div><!--END div : class=card id=main -->
 
 	<div id="footer" class="button mdl2-quiet-hours shine">
 		<p>Sleep</p>

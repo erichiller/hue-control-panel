@@ -1,25 +1,7 @@
-// html, body { height: 100%; }
-// body {
-//   overflow: hidden;
-// }
-
-// #container {
-  // display: none;
-// }
-
-svg {
-//   position: absolute;
-//   width: 2240px;
-//   animation: wave 7s cubic-bezier( 0.36, 0.45, 0.63, 0.53) infinite;
-//   transform: translate3d(0, 0, 0);
-  // border: 1px solid black
-}
-
 $opacity_low: 0;
 $opacity_mid: .4;
 $opacity_high: 1;
 $animation-color-time: 2s;
-// $animation-timing: cubic-bezier( 0.36, 0.45, 0.63, 0.53);
 $animation-timing: linear;
 
 $color_A: #c80101; // red
@@ -60,9 +42,6 @@ path {
     }
   }
 }
-
-
-
 
 @for $i from 1 through 3 {
   @keyframes wave_#{$i} {

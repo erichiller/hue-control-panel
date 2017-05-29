@@ -1,5 +1,5 @@
 import { Room , Group , Light } from './lighting';
-import { DEFAULT_BRIDGE_IP , DEFAULT_USER_ID } from './config';
+import { DEFAULT_BRIDGE_IP , DEFAULT_USER_ID } from './_config';
 
 export class Bridge {
 
