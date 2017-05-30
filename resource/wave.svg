@@ -18,10 +18,9 @@
 			<stop class="stop4" offset="100%"/>
 		</linearGradient>
 		<style type="text/css"><![CDATA[
- 
-      
-      ]]>
-    </style>
+		
+		]]>
+		</style>
 	</defs>
   
 <rect class="hero" width="1600" height="140" x="0" y="0" fill="url(#wavePattern)" />

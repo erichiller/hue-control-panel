@@ -3,17 +3,23 @@
 	padding: 0 .2pc;
 	@extend %translucent-div;
 	box-shadow: 3px 0px 20px 0px #f2f2f2;
-	position: relative;
+	// position: relative;
 	overflow: hidden;
 	cursor: pointer;
+
+	display: inline-flex;
+	align-items: center;
 }
 .button p {
-	text-align: center;
 	display: inline-block;
-	position: relative;
-	top: -.5pc;
 	font-weight: bold;
 	font-family: "EkMukta-Light";
+	margin: 0 auto;
+}
+
+[class^="mdl2-"]::before, [class*="mdl2-"]::before {
+	align-self: flex-start;
+	// flex rocks -> https://developer.mozilla.org/en-US/docs/Web/CSS/align-self
 }
 
 .button.navback {
@@ -29,45 +35,161 @@
 }
 
 
+// finally a button shine that doesn't suck
+// https://codepen.io/redouglas/pen/gobsm
+// doesn't use relative positioning or anything else that screws with layouts
+.button.shine {
+	    background: linear-gradient(to top right, 
+		rgba(34, 34, 34, 0.13) 0%, 
+		rgba(255, 255, 255, 0.7) 45%, 
+		rgba(34, 34, 34, 0.13) 60%, 
+		rgba(34, 34, 34, 0.13) 100%);
+    background-size: 200% 500%;
+    background-color: rgba(34,34,35,.13);
 
-/**
- * The "shine" element
- * http://jsfiddle.net/AntonTrollback/nqQc7/
- */
 
-.button.shine:after {
-  content: "";
-  position: absolute;
-  top: -110%;
-  left: -210%;
-  width: 200%;
-  height: 200%;
-  opacity: 0;
-  transform: rotate(30deg);
-  
-  background: rgba(255, 255, 255, 0.13);
-  background: linear-gradient(
-    to right, 
-    rgba(255, 255, 255, 0.13) 0%,
-    rgba(255, 255, 255, 0.13) 77%,
-    rgba(255, 255, 255, 0.5) 92%,
-    rgba(255, 255, 255, 0.0) 100%
-  );
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	// background-color: #222;
+
+	animation: button-shine .9s ease-in infinite;
 }
 
-/* Hover state - trigger effect */
-
-.button.shine:hover:after {
-  opacity: 1;
-  top: -30%;
-  left: -30%;
-  transition-property: left, top, opacity;
-  transition-duration: 0.7s, 0.7s, 0.15s;
-  transition-timing-function: ease;
+@keyframes button-shine {
+	0% {
+		background-position: top right;
+	}
+	100% {
+		background-position: bottom left;
+	}
 }
 
-/* Active state */
 
-.button.shine:active:after {
-  opacity: 0;
-}
+
+// .button.shine:hover,
+// .button.shine:active {
+// 	animation: button-shine .9s ease-in;
+// 	    background: linear-gradient(to top right, 
+// 		rgba(34, 34, 34, 0.13) 0%, 
+// 		rgba(255, 255, 255, 0.7) 45%, 
+// 		rgba(34, 34, 34, 0.13) 60%, 
+// 		rgba(34, 34, 34, 0.13) 100%);
+// 	background-position: 0 0;
+// 	background-repeat: no-repeat;
+// }
+
+// @keyframes button-shine {
+// 	0% {
+
+// 		background-position: top right;
+// 	}
+// 	100% {
+// 		background-position: bottom left;
+// 	}
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// .button.shine:hover:after {
+// 	// opacity: 1;
+// 	// padding-left: 200%;
+// 	// margin-left: 200%;
+// 	// transition-property: padding-left , margin-left , opacity;
+// 	// transition-duration: 0.7s, 0.7s, 0.15s;
+// 	// transition-timing-function: ease;
+
+//   top: -110%;
+//   left: -210%;
+//   width: 200%;
+//   height: 200%;
+// 	position: absolute;
+//   content: "";
+// 	// z-index: 1000;
+// 	// opacity: 0;
+// 	// padding-left: 0;
+// 	// margin-left: 0;
+// 	transform: rotate(315deg);
+// 		// background: linear-gradient(
+// 		// 	to bottom right, 
+// 		// 	rgba(255, 255, 255, 0.13) 0%,
+// 		// 	rgba(255, 255, 255, 0.13) 77%,
+// 		// 	rgba(255, 255, 255, 0.5) 92%,
+// 		// 	rgba(255, 255, 255, 0.0) 100%
+// 		// );
+// 	background: red;
+// 	animation: button-shine 7s ease;
+
+// }
+
+// @keyframes button-shine {
+// 	0% {
+// 		opacity: 0;
+// 		left: 200px;
+// 	}
+// 	100% {
+// 		opacity: 1;
+// 		left: 0px;
+
+// 	}
+
+// }
+
+
+
+// /**
+//  * The "shine" element
+//  * http://jsfiddle.net/AntonTrollback/nqQc7/
+//  */
+
+// .button.shine:after {
+//   content: "";
+//   position: absolute;
+//   top: -110%;
+//   left: -210%;
+//   width: 200%;
+//   height: 200%;
+//   opacity: 0;
+//   transform: rotate(30deg);
+//     background: rgba(255, 255, 255, 0.13);
+//   background: linear-gradient(
+//     to right, 
+//     rgba(255, 255, 255, 0.13) 0%,
+//     rgba(255, 255, 255, 0.13) 77%,
+//     rgba(255, 255, 255, 0.5) 92%,
+//     rgba(255, 255, 255, 0.0) 100%
+//   );
+// }
+
+// /* Hover state - trigger effect */
+
+// .button.shine:hover:after {
+//   opacity: 1;
+//   top: -30%;
+//   left: -30%;
+//   transition-property: left, top, opacity;
+//   transition-duration: 0.7s, 0.7s, 0.15s;
+//   transition-timing-function: ease;
+// }
+
+// /* Active state */
+
+// .button.shine:active:after {
+//   opacity: 0;
+// }
