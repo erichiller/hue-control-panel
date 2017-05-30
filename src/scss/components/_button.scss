@@ -39,20 +39,17 @@
 // https://codepen.io/redouglas/pen/gobsm
 // doesn't use relative positioning or anything else that screws with layouts
 .button.shine {
-	    background: linear-gradient(to top right, 
+	background: linear-gradient(to top right, 
 		rgba(34, 34, 34, 0.13) 0%, 
 		rgba(255, 255, 255, 0.7) 45%, 
 		rgba(34, 34, 34, 0.13) 60%, 
 		rgba(34, 34, 34, 0.13) 100%);
     background-size: 200% 500%;
-    background-color: rgba(34,34,35,.13);
-
+	@extend %translucent-div;
 
 	background-repeat: no-repeat;
-	background-position: 0 0;
-	// background-color: #222;
-
-	animation: button-shine .9s ease-in infinite;
+		background-position: top right;
+	// background-position: 0 0;
 }
 
 @keyframes button-shine {
@@ -65,18 +62,13 @@
 }
 
 
-
-// .button.shine:hover,
 // .button.shine:active {
-// 	animation: button-shine .9s ease-in;
-// 	    background: linear-gradient(to top right, 
-// 		rgba(34, 34, 34, 0.13) 0%, 
-// 		rgba(255, 255, 255, 0.7) 45%, 
-// 		rgba(34, 34, 34, 0.13) 60%, 
-// 		rgba(34, 34, 34, 0.13) 100%);
-// 	background-position: 0 0;
-// 	background-repeat: no-repeat;
-// }
+
+.button.shine:hover {
+	animation: button-shine .7s ease-in;
+	// background-position: 0 0;
+	// background-repeat: no-repeat;
+}
 
 // @keyframes button-shine {
 // 	0% {
