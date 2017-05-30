@@ -25,10 +25,14 @@
     "@types/jquery": "^2.0.45",
     "@types/node-fetch": "^1.6.7",
     "copyfiles": "^1.2.0",
+    "extract-text-webpack-plugin": "^2.1.0",
     "node-sass": "^4.5.3",
     "normalize.css": "^7.0.0",
     "ts-loader": "^2.1.0",
-    "typescript": "^2.3.2"
+    "typescript": "^2.3.2",
+    "webpack": "^2.6.1",
+    "webpack-dev-server": "^2.4.5",
+    "webpack-svgstore-plugin": "^4.0.0"
   },
   "dependencies": {
     "image-size": "^0.5.4",

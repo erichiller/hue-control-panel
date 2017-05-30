@@ -1,6 +1,14 @@
 import { DEFAULT_HOME_LIGHT } from './lighting';
 import { Bridge , DEFAULT_BRIDGE } from './bridge';
 
+var __svg__ = {
+	// in 
+	path: '../resource/layout.svg',
+	// out
+	name: 'resource/layout.svg'
+};
+console.log(__svg__);
+require('webpack-svgstore-plugin/src/helpers/svgxhr')(__svg__)
 
 // replace
 let lightID = 11; // homepage
@@ -11,24 +19,40 @@ let bridge = DEFAULT_BRIDGE;
 
 window.addEventListener("load", startup, false);
 
+
 function startup() {
-	let hueColor: HTMLFormElement = <HTMLFormElement> document.querySelector("#hueColor");
-	hueColor.value = defaultColor;
-	// hueColor.addEventListener("change", setHueColor, false);
-	hueColor.select(); // pretty sure this selects the element for user input
+	let hueColor: HTMLFormElement = <HTMLFormElement>document.querySelector("#status_rgb_red");
+	if (hueColor) {
+		hueColor.value = defaultColor;
+		// hueColor.addEventListener("change", setHueColor, false);
+		hueColor.select(); // pretty sure this selects the element for user input
+	} else {
+		console.log( "Unable to set color of current light, element not found" );
+	}
 
 	let discoLight: HTMLFormElement = <HTMLFormElement>document.querySelector("#discoLight");
-	discoLight.value = (DEFAULT_HOME_LIGHT.getEffect() == "none" ? "Turn on Disco" : "Turn off Disco")
-	discoLight.addEventListener("click", DEFAULT_HOME_LIGHT.toggleEffect, false);
+	if (discoLight) {
+		discoLight.value = (DEFAULT_HOME_LIGHT.getEffect() == "none" ? "Turn on Disco" : "Turn off Disco")
+		discoLight.addEventListener("click", DEFAULT_HOME_LIGHT.toggleEffect, false);
+	} else {
+		console.log("Unable to set effect status of current light, element not found");
+	}
 
 	let turnLightOn: HTMLFormElement = <HTMLFormElement>document.querySelector("#turnLightOn");
-	turnLightOn.value = (DEFAULT_HOME_LIGHT.getPower()===false?"Turn On":"Turn Off")
-	turnLightOn.addEventListener("click", DEFAULT_HOME_LIGHT.togglePower);
+	if (turnLightOn) {
+		turnLightOn.value = (DEFAULT_HOME_LIGHT.getPower()===false?"Turn On":"Turn Off")
+		turnLightOn.addEventListener("click", DEFAULT_HOME_LIGHT.togglePower);
+	} else {
+		console.log("Unable to set power status of current light, element not found");
+	}
 
+	let navigateHome: HTMLElement = <HTMLElement>document.querySelector("#navigate-home");
+	navigateHome.addEventListener("click", () => { document.querySelector("#main").classList.toggle("rotate") } );
+	
 }
 
 
-function setHueColor(jscolor) {
+export function setHueColor(jscolor) {
 	console.log(jscolor)
 	DEFAULT_HOME_LIGHT.setColorHex(jscolor.toHEXString())
 
@@ -41,17 +65,23 @@ function setHueColor(jscolor) {
 }
 
 
-function navigate(dest: string){
-
-	switch(dest){
-		case "home":
-			document.querySelector("#main").classList.toggle("rotate");
-		break;
-		default:
-			console.log("navigation option " + dest + " does not exist");
-		break;
-	}
-}
+// function navigate(el?: Element, ev?: ElementEventMap[]): any {
+// 	console.log(el,ev);
+// 	if (el){
+// 		console.log(el);
+// 		console.log(el.id.indexOf("-"));
+// 		console.log(el.id.substring(el.id.indexOf("-")))
+// 		let dest = el.id.substring(el.id.indexOf("-"));
+// 		switch (dest){
+// 			case "home":
+// 				;
+// 			break;
+// 			default:
+// 				console.log("navigation option " + dest + " does not exist");
+// 			break;
+// 		}
+// 	}
+// }
 
 
 

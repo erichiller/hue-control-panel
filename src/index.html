@@ -6,8 +6,8 @@
 	<title>Philips Hue Light Control Panel</title>
 	<link rel="stylesheet" href="resource/hue.css">
 </head>
-<script src="hue.js"></script>
-<script src="resource/jscolor.js"></script>
+<!--<script src="resource/jscolor.js"></script>-->
+<script src="bundle.js"></script>
 </script>
 <body id="card_container" class="flex_box">
 
@@ -18,7 +18,7 @@
 		<div class="button shine mdl2-home navtoplevel">
 			<p>Home</p>
 		</div>
-		<div class="button navlayout shine mdl2-view-all" onclick="navigate('home')">
+		<div id="navigate-home" class="button navlayout shine mdl2-view-all">
 			<p>View</p>
 		</div>
 	</div><!-- END div : navbar -->
@@ -58,7 +58,9 @@
 		</div><!-- END div : class="front face" -->
 
 		<div class="back face">
-			<img id="layout" src="resource/layout.svg" />
+			<svg>
+				<use xlink:href="#svg-layout"></use>
+			</svg>
 		</div><!-- END div : class="back face" -->
 
 	</div><!--END div : class=card id=main -->

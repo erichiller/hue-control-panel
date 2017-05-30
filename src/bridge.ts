@@ -11,7 +11,8 @@ export class Bridge {
 	Lights: Light[];
 
 	constructor(ip: string, user = DEFAULT_USER_ID) {
-
+		this.ip = ip;
+		this.user = user;
 	}
 
 	get(category?: string, id?: number, noun?: string): any {
