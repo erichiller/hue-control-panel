@@ -1,8 +1,7 @@
 // path required to resolve destination path for `bundle`
 var path = require('path');
 
-// svgstore - https://github.com/mrsum/webpack-svgstore-plugin
-var SvgStore = require('webpack-svgstore-plugin');
+
 // var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
@@ -12,7 +11,7 @@ module.exports = {
 	],
     output: {
         filename: "bundle.js",
-		path: path.resolve(__dirname, 'bin')
+		path: path.resolve(__dirname, 'dist')
 	},
 	devtool: "source-map",
     resolve: {
@@ -45,17 +44,7 @@ module.exports = {
 		// 	}
 		//  ]
 	},
-	plugins: [
-		// create svgStore instance object 
-		new SvgStore({
-			prefix: `svg-`
-		}),
-		// new ExtractTextPlugin({
-		// 	filename: 'src/scss/**',
-		// 	allChunks: true
-		// }),
-
-	]
+	plugins: []
 }
 
 

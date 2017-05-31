@@ -5,7 +5,7 @@
 
 node_modules
 npm-debug.log
-bin
+dist
 .DS_Store
 thumbs.db
 desktop.ini

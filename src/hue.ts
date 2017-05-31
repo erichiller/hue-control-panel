@@ -1,15 +1,6 @@
 import { DEFAULT_HOME_LIGHT } from './lighting';
 import { Bridge , DEFAULT_BRIDGE } from './bridge';
 
-var __svg__ = {
-	// in 
-	path: '../resource/layout.svg',
-	// out
-	name: 'resource/layout.svg'
-};
-console.log(__svg__);
-require('webpack-svgstore-plugin/src/helpers/svgxhr')(__svg__)
-
 // replace
 let lightID = 11; // homepage
 let defaultColor = "#0000ff";

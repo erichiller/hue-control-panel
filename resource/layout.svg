@@ -17,7 +17,7 @@
    id="edh"
    name="edh"
    inkscape:version="0.92.1 r15371"
-   sodipodi:docname="edh.svg">
+   sodipodi:docname="layout.svg">
   <defs
      id="defs3690">
     <linearGradient
@@ -44,17 +44,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.04"
-     inkscape:cx="9242.2717"
-     inkscape:cy="9445.062"
+     inkscape:cx="5642.2717"
+     inkscape:cy="13023.86"
      inkscape:document-units="in"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="in"
-     inkscape:window-width="1920"
-     inkscape:window-height="1137"
-     inkscape:window-x="-8"
-     inkscape:window-y="248"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="1348"
+     inkscape:window-height="993"
+     inkscape:window-x="2038"
+     inkscape:window-y="719"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata3693">
     <rdf:RDF>
@@ -63,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -174,9 +174,9 @@
        x="12.491692"
        y="-10076.037"
        style="fill:none;fill-opacity:1;stroke:#afafaf;stroke-width:1.99612594;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       inkscape:label="#balcony">
-      <desc
-         id="desc6789-2">Balcony Placeholder</desc>
+       inkscape:label="">
+      <title
+         id="title3987">room</title>
     </rect>
     <rect
        id="sink"

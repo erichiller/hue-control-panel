@@ -2,9 +2,9 @@
   "name": "hue-control-panel",
   "version": "0.0.1",
   "description": "web browser only hue light control - designed for onscreen embedded raspberry pi usage",
-  "main": "bin/hue.js",
+  "main": "dist/hue.js",
   "scripts": {
-    "build": "tsc && copyfiles -f ./src/index.html bin && copyfiles resource/* bin && copyfiles resource/segoe/* bin && node-sass.cmd ./src/scss/hue.scss ./bin/resource/hue.css",
+    "build": "tsc && copyfiles -f ./src/index.html dist && copyfiles resource/* dist && copyfiles resource/segoe/* dist && node-sass.cmd ./src/scss/hue.scss ./dist/resource/hue.css",
     "prestart": "npm run build",
     "start": "echo done",
     "dash-build": "tsc ./src/dash.ts",
@@ -25,14 +25,14 @@
     "@types/jquery": "^2.0.45",
     "@types/node-fetch": "^1.6.7",
     "copyfiles": "^1.2.0",
-    "extract-text-webpack-plugin": "^2.1.0",
+    "gulp": "^3.9.1",
+    "gulp-inject-svg": "^0.1.9",
+    "gulp-sass": "^3.1.0",
     "node-sass": "^4.5.3",
     "normalize.css": "^7.0.0",
     "ts-loader": "^2.1.0",
     "typescript": "^2.3.2",
-    "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.5",
-    "webpack-svgstore-plugin": "^4.0.0"
+    "webpack": "^2.6.1"
   },
   "dependencies": {
     "image-size": "^0.5.4",

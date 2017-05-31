@@ -10,7 +10,7 @@
 		"removeComments": false,
 		"noImplicitAny": false,
 		"noLib": false,
-		"outDir": "bin",
+		"outDir": "dist",
 		"allowUnreachableCode": false,
 		"forceConsistentCasingInFileNames": true,
 		"listFiles": true,
