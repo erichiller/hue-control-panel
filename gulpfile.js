@@ -34,6 +34,77 @@ gulp.task('svg-remove-properties', function () {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var inject = require('gulp-inject');
+const path = require('path');
+
+gulp.task('2svg-inject', function () {
+	gulp.src('./src/**/*.html')
+		.pipe(inject(gulp.src(['*.svg'], { cwd: path.join(__dirname, "dep/svg/") }), {
+			// ignorePath: ['dep','svg', "dep/svg"],
+			// ignorePath: "dep"
+			// relative: true,
+			addRootSlash: false,
+			starttag: '<!-- inject:{{path}} -->',
+			transform: function (filePath, file) {
+				// return file contents as string 
+				console.log(__dirname);
+				console.log(filePath);
+				return file.contents.toString('utf8')
+			}
+		}))
+		.pipe(gulp.dest('./dist'));
+	console.log(__dirname);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// WebPack ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
