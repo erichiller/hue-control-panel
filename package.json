@@ -4,9 +4,7 @@
   "description": "web browser only hue light control - designed for onscreen embedded raspberry pi usage",
   "main": "dist/hue.js",
   "scripts": {
-    "build": "tsc && copyfiles -f ./src/index.html dist && copyfiles resource/* dist && copyfiles resource/segoe/* dist && node-sass.cmd ./src/scss/hue.scss ./dist/resource/hue.css",
-    "prestart": "npm run build",
-    "start": "echo done",
+    "start": "echo \"Error: not yet specified\" && exit 1",
     "dash-build": "tsc ./src/dash.ts",
     "dash-run": "ts-node.cmd .\\src\\dash.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -30,6 +28,7 @@
     "gulp-sass": "^3.1.0",
     "node-sass": "^4.5.3",
     "normalize.css": "^7.0.0",
+    "remove-svg-properties": "^0.3.3",
     "ts-loader": "^2.1.0",
     "typescript": "^2.3.2",
     "webpack": "^2.6.1"

@@ -5,7 +5,7 @@
 	/*width: 450px;*/
 	/*height: 281px;*/
 	z-index: 1;
-	background-image: url('background_aurora.jpg');
+	background-image: url('resource/background_aurora.jpg');
 	background-clip: border-box;
 	perspective: 1000;
 }
@@ -20,7 +20,7 @@
 	height: 100%;
 	transform-style: preserve-3d;
 	transition: all 1.0s linear;
-	background-image: url('background_color.jpg');
+	background-image: url('resource/background_color.jpg');
 	background-clip: border-box;
 }
 .face {

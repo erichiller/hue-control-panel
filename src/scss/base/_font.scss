@@ -12,14 +12,14 @@
     font-style: normal;
 }
 
-@import 'segoe/mdl2.css';
+@import 'resource/segoe/mdl2.css';
 
 .mdl2-page-left::before  { content: '\e760'; }
 .mdl2-quiet-hours::before{ content: '\e708'; }
 
 @font-face {
     font-family: 'EkMukta-Light';
-    src: url('EkMukta-Light.ttf') format('truetype');
+    src: url('resource/EkMukta-Light.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
