@@ -7,7 +7,7 @@ var path = require('path');
 module.exports = {
     entry: [
 		"./src/hue.ts",
-		"./dep/lib/jscolor.js",
+		"./dep/lib/palette.js",
 	],
     output: {
         filename: "bundle.js",

@@ -4,125 +4,43 @@
 var gulp = require('gulp');
 
 // default task // this is what occurs when run without any flags or other commands // `gulp` //
-gulp.task('default',["build-dev"]);
-// memory buffer //
-var memory = {}; // we'll keep our assets in memory
-
+gulp.task('default', ["build-dev"]);
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// SVG //////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-// gulp-inject-svg // svg injection into html //
-// https://www.npmjs.com/package/gulp-inject-svg
-var injectSvg = require('gulp-inject-svg');
-gulp.task('svg-html-inject', function () {
-	return gulp.src('src/**/*.html')
-		.pipe(injectSvg())
-		.pipe(gulp.dest('dist/'));
-});
 // remove-svg-properties //
 // https://www.npmjs.com/package/remove-svg-properties
 var rsp = require('remove-svg-properties').stream;
-gulp.task('svg-remove-properties', function () {
-	gulp.src('./dep/svg/*.svg')
-		.pipe(rsp.remove({
-			properties: [rsp.PROPS_FILL]
-		}))
-		.pipe(gulp.dest('./dist/svg'));
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// changing gulp working directory for glob
-// https://github.com/gulpjs/gulp/blob/master/docs/recipes/specifying-a-cwd.md
-// .pipe(inject(gulp.src(['*.svg'], { cwd: path.join(__dirname, "dep/svg/") }), {
-
-
 var inject = require('gulp-inject');
 const path = require('path');
-const flatmap = require('gulp-flatmap');
-// var source = require('vinyl-source-stream');
 
-gulp.task('2svg-inject', function () {
-
-	var memory = {};
-
-	
+gulp.task('svg-html-inject', function () {
 
 	gulp.src('./src/**/*.html')
-		.pipe(inject(flatmap( function(stream, file){
-			console.log('in flatmap');
-			console.log(file);
-			return gulp.src('dep/svg/')
-				.pipe(rsp.remove({
-					properties: [rsp.PROPS_FILL]
-				}))
-				// .pipe(tap(function (file) {
-				// 	// save the file contents in memory
-				// 	memory[path.basename(file.path)] = file.contents.toString();
-				// }));
-		} ), {
-			// ignorePath: ['dep','svg', "dep/svg"],
-			// ignorePath: "dep"
-			// relative: true,
-			addRootSlash: false,
-			starttag: '<!-- inject:{{path}} -->',
-			transform: function (filePath, file) {
-				// return file contents as string 
-				console.log(__dirname);
-				console.log(filePath);
-				return file.contents.toString('utf8');
+		.pipe(
+		inject(
+			gulp.src('./dep/svg/*.svg')
+				.pipe(
+				rsp.remove({
+					properties: ['style'],
+				})
+				)
+			, {
+				ignorePath: ["dep/svg"],
+				addRootSlash: false,
+				starttag: '<!-- inject:{{path}} -->',
+				transform: function (filePath, file) {
+					// return file contents as string 
+					console.log(`internal_dirname=${__dirname}`);
+					console.log(`internal_filePath=${filePath}`);
+					return file.contents.toString('utf8');
+				}
 			}
-		}))
+		)
+		)
 		.pipe(gulp.dest('./dist'));
-	console.log(__dirname);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +53,7 @@ var webpack = require("webpack");
 var gutil = require("gulp-util");
 var webpackConfig = require("./webpack.config.js");
 gulp.task("build-dev", ["webpack:build-dev", "svg-html-inject", "build-scss", "copy-resources"], function () {
-	gulp.watch(["src/**/*.ts", "src/**/*.js"], ["webpack:build-dev"]);
+	gulp.watch(["src/**/*.ts", "src/**/*.js", "dep/lib/**/*.js"], ["webpack:build-dev"]);
 	gulp.watch(["dep/svg/**/*", "src/**/*.html"], ["svg-html-inject"]);
 	gulp.watch(["src/scss/**/*.scss"], ["build-scss"]);
 	gulp.watch(["dep/resource/**"], ["copy-resources"]);
