@@ -50,15 +50,35 @@ gulp.task('svg-remove-properties', function () {
 
 
 
-
+// changing gulp working directory for glob
+// https://github.com/gulpjs/gulp/blob/master/docs/recipes/specifying-a-cwd.md
+// .pipe(inject(gulp.src(['*.svg'], { cwd: path.join(__dirname, "dep/svg/") }), {
 
 
 var inject = require('gulp-inject');
 const path = require('path');
+const flatmap = require('gulp-flatmap');
+// var source = require('vinyl-source-stream');
 
 gulp.task('2svg-inject', function () {
+
+	var memory = {};
+
+	
+
 	gulp.src('./src/**/*.html')
-		.pipe(inject(gulp.src(['*.svg'], { cwd: path.join(__dirname, "dep/svg/") }), {
+		.pipe(inject(flatmap( function(stream, file){
+			console.log('in flatmap');
+			console.log(file);
+			return gulp.src('dep/svg/')
+				.pipe(rsp.remove({
+					properties: [rsp.PROPS_FILL]
+				}))
+				// .pipe(tap(function (file) {
+				// 	// save the file contents in memory
+				// 	memory[path.basename(file.path)] = file.contents.toString();
+				// }));
+		} ), {
 			// ignorePath: ['dep','svg', "dep/svg"],
 			// ignorePath: "dep"
 			// relative: true,
@@ -68,7 +88,7 @@ gulp.task('2svg-inject', function () {
 				// return file contents as string 
 				console.log(__dirname);
 				console.log(filePath);
-				return file.contents.toString('utf8')
+				return file.contents.toString('utf8');
 			}
 		}))
 		.pipe(gulp.dest('./dist'));
