@@ -1,9 +1,14 @@
-// gulp //
+////////////////////////////////////////
+///////////////// gulp /////////////////
+////////////////////////////////////////
 // http://gulpjs.com/
 // npm install --global gulp-cli
 var gulp = require('gulp');
 
-// default task // this is what occurs when run without any flags or other commands // `gulp` //
+////////////////////////////////////////
+///////////// default task /////////////
+////////////////////////////////////////
+// run without any flags or other commands // `gulp` //
 gulp.task('default', ["build-dev"]);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +21,6 @@ var inject = require('gulp-inject');
 const path = require('path');
 
 gulp.task('svg-html-inject', function () {
-
 	gulp.src('./src/**/*.html')
 		.pipe(
 		inject(
@@ -42,7 +46,6 @@ gulp.task('svg-html-inject', function () {
 		.pipe(gulp.dest('./dist'));
 });
 
-
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// WebPack ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,31 +54,55 @@ gulp.task('svg-html-inject', function () {
 // https://github.com/webpack/webpack-with-common-libs/blob/master/gulpfile.js
 var webpack = require("webpack");
 var gutil = require("gulp-util");
-var webpackConfig = require("./webpack.config.js");
-gulp.task("build-dev", ["webpack:build-dev", "svg-html-inject", "build-scss", "copy-resources"], function () {
-	gulp.watch(["src/**/*.ts", "src/**/*.js", "dep/lib/**/*.js"], ["webpack:build-dev"]);
+gulp.task("build-dev", ["webpack-build-dev", "svg-html-inject", "build-scss", "copy-resources"], function () {
+	gulp.watch(["src/**/*.ts", "src/**/*.js", "dep/lib/**/*.js"], ["webpack-build-dev"]);
 	gulp.watch(["dep/svg/**/*", "src/**/*.html"], ["svg-html-inject"]);
 	gulp.watch(["src/scss/**/*.scss"], ["build-scss"]);
 	gulp.watch(["dep/resource/**"], ["copy-resources"]);
 });
 
-gulp.task("webpack:build-dev", function (callback) {
-	// modify some webpack config options
-	var myConfig = Object.create(webpackConfig);
-	myConfig.plugins = myConfig.plugins.concat(
-		new webpack.DefinePlugin({
-			"process.env": {
-				// This has effect on the react lib size
-				"NODE_ENV": JSON.stringify("dev")
-			}
-		})
-	);
+gulp.task("webpack-build-dev", function (callback) {
+	var myConfig = Object.create({
+		entry: [
+			"./src/hue.ts",
+			// "./dep/lib/palette.js",
+		],
+		output: {
+			filename: "bundle.js",
+			path: path.resolve(__dirname, 'dist')
+		},
+		devtool: "source-map",
+		resolve: {
+			// Add '.ts' and '.tsx' as a resolvable extension.
+			extensions: [ ".tsx", ".ts", ".js" ]
+		},
+		module: {
+			loaders: [
+				{
+					// all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
+					// see ts-loader config details
+					// https://www.npmjs.com/package/ts-loader
+					test: /\.tsx?$/,
+					exclude: /node_modules/,
+					loader: "ts-loader"
+				}
+			],
+		},
+		plugins: [
+			new webpack.DefinePlugin({
+				"process.env": {
+					// This has effect on the react lib size
+					"NODE_ENV": JSON.stringify("dev")
+				}
+			}),
+		]
+	});
 	// npm-run webpack --verbose --progress --colors --profile --env=dev --debug --watch
 
 	// run webpack
 	webpack(myConfig, function (err, stats) {
-		if (err) throw new gutil.PluginError("webpack:build", err);
-		gutil.log("[webpack:build]", stats.toString({
+		if (err) throw new gutil.PluginError("webpack-build-dev", err);
+		gutil.log("[webpack-build-dev]", stats.toString({
 			colors: true
 		}));
 		callback();
@@ -87,11 +114,17 @@ gulp.task("webpack:build-dev", function (callback) {
 ////////////////////////////////////////////////////////////////////////////////
 // sass // scss //
 var sass = require('gulp-sass');
+const plumber = require('gulp-plumber');
 // https://github.com/gulpjs/gulp/blob/master/docs/recipes/rebuild-only-files-that-change.md
 gulp.task('build-scss', function () {
 	return gulp.src('src/scss/**/*.scss')
+		.pipe(plumber(function (error) {
+			gutil.log(gutil.colors.red(error.message));
+			this.emit('end');
+		}))
 		.pipe(sass())
 		.pipe(gulp.dest('dist'));
+		// .pipe(reload({ stream: true })); /// this is for BrowserSync
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +142,8 @@ gulp.task('clean', function () {
 	return del(['dist']);
 });
 
-
-
+////////////////////////////////////////
+//////////////// NOTES /////////////////
+////////////////////////////////////////
 // many of good examples
 // https://github.com/gulpjs/gulp/tree/master/docs/recipes
