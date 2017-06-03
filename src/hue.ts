@@ -9,8 +9,18 @@ let defaultColor = "#0000ff";
 
 let bridge = DEFAULT_BRIDGE;
 
-window.addEventListener("load", startup, false);
-
+window.addEventListener("DOMContentLoaded", startup, false);
+let palette = new colorPalette("colorPalette", {
+	lookupClass: null,
+	onFineChange: () => { setHueColor(this) },
+	valueElement: false,
+	styleElement: false,
+	padding: 2,
+	borderWidth: 1,
+	position: 'top',
+	activeClass: "eric-rocks"
+});
+palette.register();
 
 function startup() {
 	let hueColor: HTMLFormElement = <HTMLFormElement>document.querySelector("#status_rgb_red");
@@ -41,7 +51,7 @@ function startup() {
 	let navigateHome: HTMLElement = <HTMLElement>document.querySelector("#navigate-home");
 	navigateHome.addEventListener("click", () => { document.querySelector("#main").classList.toggle("rotate") } );
 	
-	let palette = new colorPalette("colorPalette");
+
 }
 
 

@@ -13,8 +13,8 @@ interface picker {
 	boxB: HTMLElement;
 	pad: HTMLElement;
 	padB: HTMLElement;
-	padM: paletteElementExt;
-	padPal: palette;
+	padM: controlElementExt;
+	padPal: paletteElementExt;
 	cross: HTMLElement;
 	crossBY: HTMLElement;
 	crossBX: HTMLElement;
@@ -22,7 +22,7 @@ interface picker {
 	crossLX: HTMLElement;
 	sld: HTMLElement;
 	sldB: HTMLElement;
-	sldM: paletteElementExt;
+	sldM: controlElementExt;
 	sldGrad: sliderGradient;
 	sldPtrS: HTMLElement;
 	sldPtrIB: HTMLElement;
@@ -32,14 +32,128 @@ interface picker {
 	btnT: HTMLElement;
 }
 
-class palette {
+class paletteElementExt {
 
-	elm: HTMLElement;
-	draw = null;
+	elm: HTMLCanvasElement | HTMLDivElement;
+	ctx: CanvasRenderingContext2D;
+	_vmlNS: string; // vmlNamespace._vmlNS
+
+	constructor(_vmlNS?: string) {
+		this._vmlNS = _vmlNS;
+		console.info("constuctor()ing paletteElementExt (padPal)");
+		if (isCanvasSupported()) {
+			console.info("Canvas is supported");
+			// Canvas implementation for modern browsers
+			this.elm = document.createElement('canvas');
+			this.ctx = this.elm.getContext('2d');
+		}
+
+	}
+
+
+	draw(width:number, height:number, type: 's' | 'v') {
+		console.info(`in drawFunc for paletteElementExt.draw(). // width=${width} ; height=${height} ; type=${type}`);
+		console.info(this);
+		if (isCanvasSupported() && this.elm instanceof HTMLCanvasElement) {
+			console.info(`paletteElementExt.draw() -> // width=${width} ; height=${height}`);
+			this.elm.width = width;
+			this.elm.height = height;
+
+			this.ctx.clearRect(0, 0, this.elm.width, this.elm.height);
+
+			let hGrad = this.ctx.createLinearGradient(0, 0, this.elm.width, 0);
+			hGrad.addColorStop(0 / 6, '#F00');
+			hGrad.addColorStop(1 / 6, '#FF0');
+			hGrad.addColorStop(2 / 6, '#0F0');
+			hGrad.addColorStop(3 / 6, '#0FF');
+			hGrad.addColorStop(4 / 6, '#00F');
+			hGrad.addColorStop(5 / 6, '#F0F');
+			hGrad.addColorStop(6 / 6, '#F00');
+
+			this.ctx.fillStyle = hGrad;
+			this.ctx.fillRect(0, 0, this.elm.width, this.elm.height);
+
+			let vGrad = this.ctx.createLinearGradient(0, 0, 0, this.elm.height);
+			switch (type.toLowerCase()) {
+				case 's':
+					vGrad.addColorStop(0, 'rgba(255,255,255,0)');
+					vGrad.addColorStop(1, 'rgba(255,255,255,1)');
+					break;
+				case 'v':
+					vGrad.addColorStop(0, 'rgba(0,0,0,0)');
+					vGrad.addColorStop(1, 'rgba(0,0,0,1)');
+					break;
+			}
+			this.ctx.fillStyle = vGrad;
+			this.ctx.fillRect(0, 0, this.elm.width, this.elm.height);
+			console.log(this);
+			console.log(this.ctx);
+		} else {
+			// VML fallback for IE 7 and 8
+
+			let vmlContainer = document.createElement('div');
+			vmlContainer.style.position = 'relative';
+			vmlContainer.style.overflow = 'hidden';
+
+			let hGrad = document.createElement(this._vmlNS + ':fill');
+			(<any>hGrad).type = 'gradient';
+			(<any>hGrad).method = 'linear';
+			(<any>hGrad).angle = '90';
+			(<any>hGrad).colors = '16.67% #F0F, 33.33% #00F, 50% #0FF, 66.67% #0F0, 83.33% #FF0'
+
+			let hRect = document.createElement(this._vmlNS + ':rect');
+			(<any>hRect).style.position = 'absolute';
+			(<any>hRect).style.left = -1 + 'px';
+			(<any>hRect).style.top = -1 + 'px';
+			(<any>hRect).stroked = false;
+			(<any>hRect).appendChild(hGrad);
+			vmlContainer.appendChild(hRect);
+
+			let vGrad = document.createElement(this._vmlNS + ':fill');
+			(<any>vGrad).type = 'gradient';
+			(<any>vGrad).method = 'linear';
+			(<any>vGrad).angle = '180';
+			(<any>vGrad).opacity = '0';
+
+			let vRect = document.createElement(this._vmlNS + ':rect');
+			vRect.style.position = 'absolute';
+			vRect.style.left = -1 + 'px';
+			vRect.style.top = -1 + 'px';
+			(<any>vRect).stroked = false;
+			vRect.appendChild(vGrad);
+			vmlContainer.appendChild(vRect);
+			this.elm = vmlContainer;
+
+			this.elm.style.width = width + 'px';
+			this.elm.style.height = height + 'px';
+
+			hRect.style.width =
+				vRect.style.width =
+				(width + 1) + 'px';
+			hRect.style.height =
+				vRect.style.height =
+				(height + 1) + 'px';
+
+			// Colors must be specified during every redraw, otherwise IE won't display
+			// a full gradient during a subsequential redraw
+			(<any>hGrad).color = '#F00';
+			(<any>hGrad).color2 = '#F00';
+
+			switch (type.toLowerCase()) {
+				case 's':
+					(<any>vGrad).color = (<any>vGrad).color2 = '#FFF';
+					break;
+				case 'v':
+					(<any>vGrad).color = (<any>vGrad).color2 = '#000';
+					break;
+			}
+		}
+	} //// END palette.draw() ////
+
 
 }
 
-interface paletteElementExt extends HTMLElement {
+interface controlElementExt extends HTMLElement {
 	_Instance?: colorPalette;
 	_ControlName?: string;
 }
@@ -71,19 +185,21 @@ class sliderGradient {
 
 	constructor(_vmlNS?: string) {
 		this._vmlNS = _vmlNS;
+		console.info("constuctor()ing sliderGradient");
 		if (isCanvasSupported()) {
 			// Canvas implementation for modern browsers
 
-			var canvas = document.createElement('canvas');
-			var ctx = canvas.getContext('2d');
+			let canvas = document.createElement('canvas');
+			let ctx = canvas.getContext('2d');
 
-			var drawFunc = function (width, height, color1, color2) {
+			let drawFunc = function (width, height, color1, color2) {
+				console.info(`in sliderGradient drawFunc(width=${width} ; height=${height} ; color1=${color1} ; color2=${color2} ; `);
 				canvas.width = width;
 				canvas.height = height;
 
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-				var grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+				let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
 				grad.addColorStop(0, color1);
 				grad.addColorStop(1, color2);
 
@@ -91,6 +207,7 @@ class sliderGradient {
 				ctx.fillRect(0, 0, canvas.width, canvas.height);
 			};
 
+			console.info(`draw set to ${drawFunc}`);
 			this.elm = canvas;
 			this.draw = drawFunc;
 
@@ -99,16 +216,16 @@ class sliderGradient {
 
 			// this.initVML();
 
-			var vmlContainer = document.createElement('div');
+			let vmlContainer = document.createElement('div');
 			vmlContainer.style.position = 'relative';
 			vmlContainer.style.overflow = 'hidden';
 
-			var grad = document.createElement(this._vmlNS + ':fill');
+			let grad = document.createElement(this._vmlNS + ':fill');
 			(<any>grad).type = 'gradient';
 			(<any>grad).method = 'linear';
 			(<any>grad).angle = '180';
 
-			var rect = document.createElement(this._vmlNS + ':rect');
+			let rect = document.createElement(this._vmlNS + ':rect');
 			rect.style.position = 'absolute';
 			rect.style.left = -1 + 'px';
 			rect.style.top = -1 + 'px';
@@ -116,7 +233,7 @@ class sliderGradient {
 			rect.appendChild(grad);
 			vmlContainer.appendChild(rect);
 
-			var drawFunc = function (width, height, color1, color2) {
+			let drawFunc = function (width, height, color1, color2) {
 				vmlContainer.style.width = width + 'px';
 				vmlContainer.style.height = height + 'px';
 
@@ -174,15 +291,15 @@ class vmlNamespace {
 
 	constructor() {
 		// init VML namespace
-		var doc = document;
+		let doc = document;
 		if (!(<any>doc).namespaces[this._vmlNS]) {
 			(<any>doc).namespaces.add(this._vmlNS, 'urn:schemas-microsoft-com:vml');
 		}
 		if (!doc.styleSheets[this._vmlCSS]) {
-			var tags = ['shape', 'shapetype', 'group', 'background', 'path', 'formulas', 'handles', 'fill', 'stroke', 'shadow', 'textbox', 'textpath', 'imagedata', 'line', 'polyline', 'curve', 'rect', 'roundrect', 'oval', 'arc', 'image'];
-			var ss = (<any>doc).createStyleSheet();
+			let tags = ['shape', 'shapetype', 'group', 'background', 'path', 'formulas', 'handles', 'fill', 'stroke', 'shadow', 'textbox', 'textpath', 'imagedata', 'line', 'polyline', 'curve', 'rect', 'roundrect', 'oval', 'arc', 'image'];
+			let ss = (<any>doc).createStyleSheet();
 			ss.owningElement.id = this._vmlCSS;
-			for (var i = 0; i < tags.length; i += 1) {
+			for (let i = 0; i < tags.length; i += 1) {
 				ss.addRule(this._vmlNS + '\\:' + tags[i], 'behavior:url(#default#VML);');
 			}
 		}
@@ -200,42 +317,56 @@ class colorPaletteOptions {
 	//
 	// Color Picker options
 	//
-	width: number = 181; // width of color palette (in px)
-	height: number = 101; // height of color palette (in px)
-	showOnClick: boolean = true; // whether to display the color picker when user clicks on its target element
-	mode: string = 'HSV'; // HSV | HVS | HS | HV - layout of the color picker controls
-	position: string = 'bottom'; // left | right | top | bottom - position relative to the target element
-	smartPosition: boolean = true; // automatically change picker position when there is not enough space for it
-	sliderSize: number = 16; // px
-	crossSize: number = 8; // px
-	closable: boolean = false; // whether to display the Close button
-	closeText: string = 'Close';
-	buttonColor: string = '#000000'; // CSS color
-	buttonHeight: number = 18; // px
-	padding: number = 12; // px
-	backgroundColor: string = '#FFFFFF'; // CSS color
-	borderWidth: number = 1; // px
-	borderColor: string = '#BBBBBB'; // CSS color
-	borderRadius: number = 8; // px
-	insetWidth: number = 1; // px
-	insetColor: string = '#BBBBBB'; // CSS color
-	sliderPtrSpace: number = 3; // px
-	shadow: boolean = true; // whether to display shadow
-	shadowBlur: number = 15; // px
-	shadowColor: string = 'rgba(0,0,0,0.2)'; // CSS color
-	pointerColor: string = '#4C4C4C'; // px
+	width             : number = 181; // width of color palette (in px)
+	height            : number = 101; // height of color palette (in px)
+	showOnClick       : boolean = true; // whether to display the color picker when user clicks on its target element
+	mode              : string = 'HSV'; // HSV | HVS | HS | HV - layout of the color picker controls
+	position          : string = 'bottom'; // left | right | top | bottom - position relative to the target element
+	smartPosition     : boolean = true; // automatically change picker position when there is not enough space for it
+	sliderSize        : number = 16; // px
+	crossSize         : number = 8; // px
+	closable          : boolean = false; // whether to display the Close button
+	closeText         : string = 'Close';
+	buttonColor       : string = '#000000'; // CSS color
+	buttonHeight      : number = 18; // px
+	padding           : number = 12; // px
+	backgroundColor   : string = '#FFFFFF'; // CSS color
+	borderWidth       : number = 1; // px
+	borderColor       : string = '#BBBBBB'; // CSS color
+	borderRadius      : number = 8; // px
+	insetWidth        : number = 1; // px
+	insetColor        : string = '#BBBBBB'; // CSS color
+	sliderPtrSpace    : number = 3; // px
+	shadow            : boolean = true; // whether to display shadow
+	shadowBlur        : number = 15; // px
+	shadowColor       : string = 'rgba(0,0,0,0.2)'; // CSS color
+	pointerColor      : string = '#4C4C4C'; // px
 	pointerBorderColor: string = '#FFFFFF'; // px
 	pointerBorderWidth: number = 1; // px
-	pointerThickness: number = 2; // px
-	zIndex: number = 1000;
-	container: Element | null = null; // where to append the color picker (BODY element by default)
+	pointerThickness  : number = 2; // px
+	zIndex            : number = 1000;
+	container         : Element | null = null; // where to append the color picker (BODY element by default)
+	// General options
+	//
+	value             : string = null; // initial HEX color. To change it later, use methods fromString(), fromHSV() and fromRGB()
+	valueElement      : Partial<HTMLInputElement>; // element that will be used to display and input the color code
+	styleElement      : styleElementExt; // element that will preview the picked color using CSS backgroundColor
 
-	// By default, search for all elements with class="palettejs" and install a color picker on them.
-	//
-	// You can change what class name will be looked for by setting the property palettejs.lookupClass
+	required          : boolean = true; // whether the associated text <input> can be left empty
+	refine            : boolean = true; // whether to refine the entered color code (e.g. uppercase it and remove whitespace)
+	hash              : boolean = false; // whether to prefix the HEX color code with # symbol
+	uppercase         : boolean = true; // whether to uppercase the color code
+	onFineChange      : (any) => any | null = null; // called instantly every time the color changes (value can be either a function or a string with javascript code)
+	activeClass       : string = 'palette-active'; // class to be set to the target element when a picker window is open on it
+	minS              : number = 0; // min allowed saturation (0 - 100)
+	maxS              : number = 100; // max allowed saturation (0 - 100)
+	minV              : number = 0; // min allowed value (brightness) (0 - 100)
+	maxV              : number = 100; // max allowed value (brightness) (0 - 100)
+
+	// By default, search for all elements with class="colorPalette" and install a color picker on them.
+	// You can change what class name will be looked for by setting the option lookupClass
 	// anywhere in your HTML document. To completely disable the automatic lookup, set it to null.
-	//
-	lookupClass: string = 'colorPalette';
+	lookupClass       : string | null = 'colorPalette';
 }
 
 export class colorPalette extends colorPaletteOptions {
@@ -258,29 +389,9 @@ export class colorPalette extends colorPaletteOptions {
 	private _vmlNamespace: vmlNamespace;
 	private _vmlReady: boolean = false
 
-
-
-
 	fixed: boolean;
-	targetElement: targetElementExt;
-
-
-
-	// General options
-	//
-	value: string = null; // initial HEX color. To change it later, use methods fromString(), fromHSV() and fromRGB()
-	valueElement: Partial<HTMLInputElement>; // element that will be used to display and input the color code
-	styleElement: styleElementExt; // element that will preview the picked color using CSS backgroundColor
-	required: boolean = true; // whether the associated text <input> can be left empty
-	refine: boolean = true; // whether to refine the entered color code (e.g. uppercase it and remove whitespace)
-	hash: boolean = false; // whether to prefix the HEX color code with # symbol
-	uppercase: boolean = true; // whether to uppercase the color code
-	onFineChange: (any) => {} | null = null; // called instantly every time the color changes (value can be either a function or a string with javascript code)
-	activeClass: string = 'palettejs-active'; // class to be set to the target element when a picker window is open on it
-	minS: number = 0; // min allowed saturation (0 - 100)
-	maxS: number = 100; // max allowed saturation (0 - 100)
-	minV: number = 0; // min allowed value (brightness) (0 - 100)
-	maxV: number = 100; // max allowed value (brightness) (0 - 100)
+	private _targetElementId: string;
+	private _targetElement: targetElementExt;
 
 	//
 	// Accessing the picked color
@@ -289,9 +400,9 @@ export class colorPalette extends colorPaletteOptions {
 	rgb: rgbT = [255, 255, 255]; // read-only  [0-255, 0-255, 0-255]
 
 	register() {
-		attachDOMReadyEvent(this.init());
-		attachEvent(document, 'mousedown', this.onDocumentMouseDown);
-		attachEvent(window, 'resize', this.onWindowResize);
+		this.attachDOMReadyEvent(() => {this.init()});
+		this.attachEvent(document, 'mousedown', this.onDocumentMouseDown);
+		this.attachEvent(window, 'resize', this.onWindowResize);
 	}
 
 
@@ -299,10 +410,8 @@ export class colorPalette extends colorPaletteOptions {
 		if (this.lookupClass) {
 			installByClassName(this.lookupClass);
 		}
+		this.drawPicker();
 	}
-
-
-
 
 
 	attachGroupEvent(groupName, el, evnt, func) {
@@ -310,14 +419,14 @@ export class colorPalette extends colorPaletteOptions {
 			this._attachedGroupEvents[groupName] = [];
 		}
 		this._attachedGroupEvents[groupName].push([el, evnt, func]);
-		attachEvent(el, evnt, func);
+		this.attachEvent(el, evnt, func);
 	}
 
 
 	detachGroupEvents(groupName) {
 		if (this._attachedGroupEvents.hasOwnProperty(groupName)) {
-			for (var i = 0; i < this._attachedGroupEvents[groupName].length; i += 1) {
-				var evt = this._attachedGroupEvents[groupName][i];
+			for (let i = 0; i < this._attachedGroupEvents[groupName].length; i += 1) {
+				let evt = this._attachedGroupEvents[groupName][i];
 				detachEvent(evt[0], evt[1], evt[2]);
 			}
 			delete this._attachedGroupEvents[groupName];
@@ -349,11 +458,11 @@ export class colorPalette extends colorPaletteOptions {
 			return;
 		}
 		if (document.createEvent) {
-			var ev = document.createEvent('HTMLEvents');
+			let ev = document.createEvent('HTMLEvents');
 			ev.initEvent(evnt, true, true);
 			el.dispatchEvent(ev);
 		} else if ((<any>document).createEventObject) {
-			var ev: Event = <Event>(<any>document).createEventObject();
+			let ev: Event = <Event>(<any>document).createEventObject();
 			el.fireEvent('on' + evnt, ev);
 		} else if (el['on' + evnt]) { // alternatively use the traditional event model
 			el['on' + evnt]();
@@ -377,8 +486,8 @@ export class colorPalette extends colorPaletteOptions {
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
 	setClass(elm, className) {
-		var classList = this.classNameToList(className);
-		for (var i = 0; i < classList.length; i += 1) {
+		let classList = this.classNameToList(className);
+		for (let i = 0; i < classList.length; i += 1) {
 			if (!this.hasClass(elm, classList[i])) {
 				elm.className += (elm.className ? ' ' : '') + classList[i];
 			}
@@ -388,9 +497,9 @@ export class colorPalette extends colorPaletteOptions {
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
 	unsetClass(elm, className) {
-		var classList = this.classNameToList(className);
-		for (var i = 0; i < classList.length; i += 1) {
-			var repl = new RegExp(
+		let classList = this.classNameToList(className);
+		for (let i = 0; i < classList.length; i += 1) {
+			let repl = new RegExp(
 				'^\\s*' + classList[i] + '\\s*|' +
 				'\\s*' + classList[i] + '\\s*$|' +
 				'\\s+' + classList[i] + '(\\s+)',
@@ -401,28 +510,28 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	getStyle(elm) {
-		return window.getComputedStyle ? window.getComputedStyle(elm) : elm.currentStyle;
+	getStyle(elm: Element): CSSStyleDeclaration {
+		return window.getComputedStyle ? window.getComputedStyle(elm) : (<any>elm).currentStyle;
 	}
 
 
 	setStyle(elm: Element, property: string, value: any) {
-		var helper = document.createElement('div');
-		var getSupportedProp = function (names) {
-			for (var i = 0; i < names.length; i += 1) {
+		let helper = document.createElement('div');
+		let getSupportedProp = function (names) {
+			for (let i = 0; i < names.length; i += 1) {
 				if (names[i] in helper.style) {
 					return names[i];
 				}
 			}
 		};
-		var props = {
+		let props = {
 			borderRadius: getSupportedProp(['borderRadius', 'MozBorderRadius', 'webkitBorderRadius']),
 			boxShadow: getSupportedProp(['boxShadow', 'MozBoxShadow', 'webkitBoxShadow'])
 		};
 		return function (elm, prop, value) {
 			switch (prop.toLowerCase()) {
 				case 'opacity':
-					var alphaOpacity = Math.round(parseFloat(value) * 100);
+					let alphaOpacity = Math.round(parseFloat(value) * 100);
 					elm.style.opacity = value;
 					elm.style.filter = 'alpha(opacity=' + alphaOpacity + ')';
 					break;
@@ -482,12 +591,12 @@ export class colorPalette extends colorPaletteOptions {
 	// get pointer's X/Y coordinates relative to target element
 	getRelPointerPos(e) {
 		if (!e) { e = window.event; }
-		var target = e.target || e.srcElement;
-		var targetRect = target.getBoundingClientRect();
+		let target = e.target || e.srcElement;
+		let targetRect = target.getBoundingClientRect();
 
-		var x = 0, y = 0;
+		let x = 0, y = 0;
 
-		var clientX = 0, clientY = 0;
+		let clientX = 0, clientY = 0;
 		if (typeof e.changedTouches !== 'undefined' && e.changedTouches.length) {
 			// touch devices
 			clientX = e.changedTouches[0].clientX;
@@ -504,7 +613,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	getViewPos() {
-		var doc = document.documentElement;
+		let doc = document.documentElement;
 		return [
 			(window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0),
 			(window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0)
@@ -513,7 +622,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	getViewSize() {
-		var doc = document.documentElement;
+		let doc = document.documentElement;
 		return [
 			(window.innerWidth || doc.clientWidth),
 			(window.innerHeight || doc.clientHeight),
@@ -521,11 +630,12 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 	redrawPosition() {
+		console.info('colorPalette.redrawPosition()');
 
 		// if (this.picker && this.picker.owner) {
-		// var thisObj = this.picker.owner;
+		// let thisObj = this.picker.owner;
 
-		var tp, vp;
+		let tp, vp;
 
 		if (this.fixed) {
 			// Fixed elements are positioned relative to viewport,
@@ -537,26 +647,29 @@ export class colorPalette extends colorPaletteOptions {
 			vp = this.getViewPos(); // view pos
 		}
 
-		var ts = this.getElementSize(this.targetElement); // target size
-		var vs = this.getViewSize(); // view size
-		var ps = this.getPickerOuterDims(); // picker size
-		var a, b, c;
+		let ts = this.getElementSize(this.targetElement); // target size
+		let vs = this.getViewSize(); // view size
+		let ps = this.getPickerOuterDims(); // picker size
+		let a, b, c;
 		switch (this.position.toLowerCase()) {
 			case 'left': a = 1; b = 0; c = -1; break;
 			case 'right': a = 1; b = 0; c = 1; break;
 			case 'top': a = 0; b = 1; c = -1; break;
 			default: a = 0; b = 1; c = 1; break;
 		}
-		var l = (ts[b] + ps[b]) / 2;
+		let l = (ts[b] + ps[b]) / 2;
+		let pp: number[];
 
 		// compute picker position
 		if (!this.smartPosition) {
-			var pp = [
+			console.info('colorPalette.redrawPosition() ; this.smartPosition = false');
+			pp = [
 				tp[a],
 				tp[b] + ts[b] - l + l * c
 			];
 		} else {
-			var pp = [
+			console.info('colorPalette.redrawPosition() ; this.smartPosition = true');
+			pp = [
 				-vp[a] + tp[a] + ps[a] > vs[a] ?
 					(-vp[a] + tp[a] + ts[a] / 2 > vs[a] / 2 && tp[a] + ts[a] - ps[a] >= 0 ? tp[a] + ts[a] - ps[a] : tp[a]) :
 					tp[a],
@@ -566,10 +679,10 @@ export class colorPalette extends colorPaletteOptions {
 			];
 		}
 
-		var x = pp[a];
-		var y = pp[b];
-		var positionValue = this.fixed ? 'fixed' : 'absolute';
-		var contractShadow =
+		let x = pp[a];
+		let y = pp[b];
+		let positionValue = this.fixed ? 'fixed' : 'absolute';
+		let contractShadow =
 			(pp[0] + ps[0] > tp[0] || pp[0] < tp[0] + ts[0]) &&
 			(pp[1] + ps[1] < tp[1] + ts[1]);
 
@@ -578,7 +691,8 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	_drawPosition(x, y, positionValue, contractShadow) {
-		var vShadow = contractShadow ? 0 : this.shadowBlur; // px
+		console.info('colorPalette._drawPosition()');
+		let vShadow = contractShadow ? 0 : this.shadowBlur; // px
 
 		this.picker.wrap.style.position = positionValue;
 		this.picker.wrap.style.left = x + 'px';
@@ -593,8 +707,8 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	getPickerDims() {
-		var displaySlider = !!this.getSliderComponent();
-		var dims = [
+		let displaySlider = !!this.getSliderComponent();
+		let dims = [
 			2 * this.insetWidth + 2 * this.padding + this.width +
 			(displaySlider ? 2 * this.insetWidth + this.getPadToSliderPadding() + this.sliderSize : 0),
 			2 * this.insetWidth + 2 * this.padding + this.height +
@@ -605,7 +719,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	getPickerOuterDims() {
-		var dims = this.getPickerDims();
+		let dims = this.getPickerDims();
 		return [
 			dims[0] + 2 * this.borderWidth,
 			dims[1] + 2 * this.borderWidth
@@ -636,20 +750,21 @@ export class colorPalette extends colorPaletteOptions {
 					return 'v';
 			}
 		}
+		console.error(`mode ${this.mode}is null, this should not occur`);
 		return null;
 	}
 
 
 	onDocumentMouseDown(e) {
 		if (!e) { e = window.event; }
-		var target = e.target || e.srcElement;
+		let target = e.target || e.srcElement;
 
-		if (target._pjsLinkedInstance) {
-			if (target._pjsLinkedInstance.showOnClick) {
-				target._pjsLinkedInstance.show();
+		if (target.LinkedInstance) {
+			if (target.LinkedInstance.showOnClick) {
+				target.LinkedInstance.show();
 			}
-		} else if (target._pjsControlName) {
-			this.onControlPointerStart(e, target, target._pjsControlName, 'mouse');
+		} else if (target.ControlName) {
+			this.onControlPointerStart(e, target, target.ControlName, 'mouse');
 		} else {
 			// Mouse is outside the picker controls -> hide the color picker!
 			if (this.picker && this.picker.owner) {
@@ -661,10 +776,10 @@ export class colorPalette extends colorPaletteOptions {
 
 	onControlTouchStart(e) {
 		if (!e) { e = window.event; }
-		var target = e.target || e.srcElement;
+		let target = e.target || e.srcElement;
 
-		if (target._pjsControlName) {
-			this.onControlPointerStart(e, target, target._pjsControlName, 'touch');
+		if (target.ControlName) {
+			this.onControlPointerStart(e, target, target.ControlName, 'touch');
 		}
 	}
 
@@ -689,6 +804,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	onControlPointerStart(e, target, controlName, pointerType) {
+		console.info('colorPalette.onControlPointerStart()');
 		this.preventDefault(e);
 		this.captureTarget(target);
 
@@ -702,7 +818,8 @@ export class colorPalette extends colorPaletteOptions {
 			touch: 'touchend'
 		}
 
-		var registerDragEvents = function (doc, offset) {
+		let registerDragEvents = (doc, offset) => {
+			console.info(`controlName=${controlName}`)
 			this.attachGroupEvent('drag', doc, _pointerMoveEvent[pointerType],
 				this.onDocumentPointerMove(e, target, controlName, pointerType, offset));
 			this.attachGroupEvent('drag', doc, _pointerEndEvent[pointerType],
@@ -712,13 +829,13 @@ export class colorPalette extends colorPaletteOptions {
 		registerDragEvents(document, [0, 0]);
 
 		if (window.parent && window.frameElement) {
-			var rect = window.frameElement.getBoundingClientRect();
-			var ofs = [-rect.left, -rect.top];
+			let rect = window.frameElement.getBoundingClientRect();
+			let ofs = [-rect.left, -rect.top];
 			registerDragEvents(window.parent.window.document, ofs);
 		}
 
-		var abs = this.getAbsPointerPos(e);
-		var rel = this.getRelPointerPos(e);
+		let abs = this.getAbsPointerPos(e);
+		let rel = this.getRelPointerPos(e);
 		this._pointerOrigin = {
 			x: abs.x - rel.x,
 			y: abs.y - rel.y
@@ -776,7 +893,7 @@ export class colorPalette extends colorPaletteOptions {
 
 	dispatchChange() {
 		if (this.valueElement) {
-			if (isElementType(this.valueElement, 'input')) {
+			if (this.valueElement instanceof HTMLInputElement) {
 				this.fireEvent(this.valueElement, 'change');
 			}
 		}
@@ -784,8 +901,10 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	dispatchFineChange() {
+		console.info(`colorPalette.dispatchFineChange()`);
 		if (this.onFineChange) {
-			var callback;
+			console.info(`colorPalette.dispatchFineChange() ; present`);
+			let callback;
 			if (typeof this.onFineChange === 'string') {
 				callback = new Function(this.onFineChange);
 			} else {
@@ -797,12 +916,12 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	setPad(this, e, ofsX, ofsY) {
-		var pointerAbs = this.getAbsPointerPos(e);
-		var x = ofsX + pointerAbs.x - this._pointerOrigin.x - this.padding - this.insetWidth;
-		var y = ofsY + pointerAbs.y - this._pointerOrigin.y - this.padding - this.insetWidth;
+		let pointerAbs = this.getAbsPointerPos(e);
+		let x = ofsX + pointerAbs.x - this._pointerOrigin.x - this.padding - this.insetWidth;
+		let y = ofsY + pointerAbs.y - this._pointerOrigin.y - this.padding - this.insetWidth;
 
-		var xVal = x * (360 / (this.width - 1));
-		var yVal = 100 - (y * (100 / (this.height - 1)));
+		let xVal = x * (360 / (this.width - 1));
+		let yVal = 100 - (y * (100 / (this.height - 1)));
 
 		switch (this.getPadYComponent()) {
 			case 's': this.fromHSV(xVal, yVal, null, this.leaveSld); break;
@@ -812,10 +931,10 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	setSld(e, ofsY) {
-		var pointerAbs = this.getAbsPointerPos(e);
-		var y = ofsY + pointerAbs.y - this._pointerOrigin.y - this.padding - this.insetWidth;
+		let pointerAbs = this.getAbsPointerPos(e);
+		let y = ofsY + pointerAbs.y - this._pointerOrigin.y - this.padding - this.insetWidth;
 
-		var yVal = 100 - (y * (100 / (this.height - 1)));
+		let yVal = 100 - (y * (100 / (this.height - 1)));
 
 		switch (this.getSliderComponent()) {
 			case 's': this.fromHSV(null, yVal, null, this.leavePad); break;
@@ -824,195 +943,78 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-
-
-
-
-
-	createPalette() {
-
-		var paletteObj = {
-			elm: null,
-			draw: null
-		};
-
-		if (isCanvasSupported()) {
-			// Canvas implementation for modern browsers
-
-			var canvas = document.createElement('canvas');
-			var ctx = canvas.getContext('2d');
-
-			var drawFunc = function (width, height, type) {
-				canvas.width = width;
-				canvas.height = height;
-
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-				var hGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
-				hGrad.addColorStop(0 / 6, '#F00');
-				hGrad.addColorStop(1 / 6, '#FF0');
-				hGrad.addColorStop(2 / 6, '#0F0');
-				hGrad.addColorStop(3 / 6, '#0FF');
-				hGrad.addColorStop(4 / 6, '#00F');
-				hGrad.addColorStop(5 / 6, '#F0F');
-				hGrad.addColorStop(6 / 6, '#F00');
-
-				ctx.fillStyle = hGrad;
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-				var vGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-				switch (type.toLowerCase()) {
-					case 's':
-						vGrad.addColorStop(0, 'rgba(255,255,255,0)');
-						vGrad.addColorStop(1, 'rgba(255,255,255,1)');
-						break;
-					case 'v':
-						vGrad.addColorStop(0, 'rgba(0,0,0,0)');
-						vGrad.addColorStop(1, 'rgba(0,0,0,1)');
-						break;
-				}
-				ctx.fillStyle = vGrad;
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
-			};
-
-			paletteObj.elm = canvas;
-			paletteObj.draw = drawFunc;
-
-		} else {
-			// VML fallback for IE 7 and 8
-
-			if (!this._vmlReady) {
-				this._vmlNamespace = new vmlNamespace();
-				this._vmlReady = true;
-			}
-
-			var vmlContainer = document.createElement('div');
-			vmlContainer.style.position = 'relative';
-			vmlContainer.style.overflow = 'hidden';
-
-			var hGrad = document.createElement(this._vmlNamespace._vmlNS + ':fill');
-			(<any>hGrad).type = 'gradient';
-			(<any>hGrad).method = 'linear';
-			(<any>hGrad).angle = '90';
-			(<any>hGrad).colors = '16.67% #F0F, 33.33% #00F, 50% #0FF, 66.67% #0F0, 83.33% #FF0'
-
-			var hRect = document.createElement(this._vmlNamespace._vmlNS + ':rect');
-			(<any>hRect).style.position = 'absolute';
-			(<any>hRect).style.left = -1 + 'px';
-			(<any>hRect).style.top = -1 + 'px';
-			(<any>hRect).stroked = false;
-			(<any>hRect).appendChild(hGrad);
-			vmlContainer.appendChild(hRect);
-
-			var vGrad = document.createElement(this._vmlNamespace._vmlNS + ':fill');
-			(<any>vGrad).type = 'gradient';
-			(<any>vGrad).method = 'linear';
-			(<any>vGrad).angle = '180';
-			(<any>vGrad).opacity = '0';
-
-			var vRect = document.createElement(this._vmlNamespace._vmlNS + ':rect');
-			vRect.style.position = 'absolute';
-			vRect.style.left = -1 + 'px';
-			vRect.style.top = -1 + 'px';
-			(<any>vRect).stroked = false;
-			vRect.appendChild(vGrad);
-			vmlContainer.appendChild(vRect);
-
-			var drawFunc = function (width, height, type) {
-				vmlContainer.style.width = width + 'px';
-				vmlContainer.style.height = height + 'px';
-
-				hRect.style.width =
-					vRect.style.width =
-					(width + 1) + 'px';
-				hRect.style.height =
-					vRect.style.height =
-					(height + 1) + 'px';
-
-				// Colors must be specified during every redraw, otherwise IE won't display
-				// a full gradient during a subsequential redraw
-				(<any>hGrad).color = '#F00';
-				(<any>hGrad).color2 = '#F00';
-
-				switch (type.toLowerCase()) {
-					case 's':
-						(<any>vGrad).color = (<any>vGrad).color2 = '#FFF';
-						break;
-					case 'v':
-						(<any>vGrad).color = (<any>vGrad).color2 = '#000';
-						break;
-				}
-			};
-
-			paletteObj.elm = vmlContainer;
-			paletteObj.draw = drawFunc;
-		}
-
-		return paletteObj;
-	}
-
-
 	/**
 	 * Previously was - palettejs : function (targetElement, options) {
 	 * Usage:
-	 * var myColor = new palettejs(<targetElement> [, <options>])
+	 * let myColor = new palettejs(<targetElement> [, <options>])
 	 * @param targetElement 
 	 * @param options 
 	 */
 	constructor(targetElement: targetElementExt | string, options?: Partial<colorPaletteOptions>) {
 		super();
 
+		if(typeof targetElement === "string"){
+			this._targetElementId = targetElement
+		}
 		this.valueElement = targetElement; // element that will be used to display and input the color code
 		this.styleElement = targetElement; // element that will preview the picked color using CSS backgroundColor
 
 		// Find the target element
-		if (typeof targetElement === "string") {
-			let id = targetElement;
-			let elm = document.getElementById(id);
-			if (elm) {
-				this.targetElement = <targetElementExt>elm;
-				warn("target element set ->");
-				console.log(elm);
-			} else {
-				warn('Could not find target element with ID \'' + id + '\'');
-			}
-		}
-
-
-		// function getProperty<T, K extends keyof T>(obj: T, key: K) {
-		// 	return obj[key];
-		// }
-		// if ( typeof this.targetElement !== "string"  &&
-		//  getProperty(this.targetElement , "_EventsAttached") ) {
-		// 	warn( " property exists " );
+		// if (typeof targetElement === "string") {
+		// 	let id = targetElement;
+		// 	let elm = document.getElementById(id);
+		// 	if (elm) {
+		// 		this.targetElement = <targetElementExt>elm;
+		// 		console.info("target element set ->" + elm.id);
+		// 	} else {
+		// 		warn('Could not find target element with ID \'' + id + '\'');
+		// 	}
 		// }
 
-		// test if 
-		// if ((<targetElementExt>this.targetElement)._EventsAttached !== undefined) {
-		if (targetElement instanceof HTMLElement) {
-			if (this.targetElement._LinkedInstance) {
+		if (typeof targetElement === "string" && targetElement) {
+			this._targetElementId = targetElement;
+			console.info("target element id set ->" + targetElement);
+		} else if (targetElement instanceof HTMLElement) {
+			if (targetElement._LinkedInstance) {
 				warn('Cannot link palette twice to the same element. Skipping.');
 				return;
 			} else {
-				this.targetElement = <targetElementExt>targetElement;
+				this._targetElement = <targetElementExt>targetElement;
 			}
-		}
-		if (this.targetElement) {
-			this.targetElement._LinkedInstance = this;
+			if (this._targetElement) {
+				this._targetElement._LinkedInstance = this;
+			} else {
+				warn(`Invalid target element: '${targetElement}' of type '${typeof targetElement}'`);
+			}
 		} else {
-			warn(`Invalid target element: '${this.targetElement}' of type '${typeof this.targetElement}'`);
+			warn('Could not find target element with ID \'' + targetElement + '\'');
 		}
+		
+
 
 		// Find the value element
 		this.valueElement = fetchElement(this.valueElement);
 		// Find the style element
 		this.styleElement = fetchElement(this.styleElement);
 
-		for (var opt in options) {
+		for (let opt in options) {
 			if (options.hasOwnProperty(opt)) {
 				this[opt] = options[opt];
 			}
 		}
+
+	}
+
+	get targetElement(): targetElementExt {
+		
+		this._targetElement = document.getElementById(this._targetElementId);
+		if (this._targetElement) {
+			this._targetElement._LinkedInstance = this;
+		} else {
+			warn(`Invalid target element: '${this.targetElement}' of type '${typeof this.targetElement}'`);
+		}
+		return this._targetElement;
+		
 	}
 
 	hide() {
@@ -1038,7 +1040,7 @@ export class colorPalette extends colorPaletteOptions {
 		if (!this.valueElement) {
 			this.exportColor();
 		} else {
-			if (isElementType(this.valueElement, 'input')) {
+			if (this.valueElement instanceof HTMLInputElement) {
 				if (!this.refine) {
 					if (!this.fromString(this.valueElement.value, this.leaveValue)) {
 						if (this.styleElement) {
@@ -1072,11 +1074,11 @@ export class colorPalette extends colorPaletteOptions {
 
 	exportColor(flags?) {
 		if (!(flags & this.leaveValue) && this.valueElement) {
-			var value = this.toString();
+			let value = this.toString();
 			if (this.uppercase) { value = value.toUpperCase(); }
 			if (this.hash) { value = '#' + value; }
 
-			if (isElementType(this.valueElement, 'input')) {
+			if (this.valueElement instanceof HTMLInputElement) {
 				this.valueElement.value = value;
 			} else {
 				this.valueElement.innerHTML = value;
@@ -1151,7 +1153,7 @@ export class colorPalette extends colorPaletteOptions {
 			b = Math.max(0, Math.min(255, b));
 		}
 
-		var hsv = this.RGB_HSV(
+		let hsv = this.RGB_HSV(
 			r === null ? this.rgb[0] : r,
 			g === null ? this.rgb[1] : g,
 			b === null ? this.rgb[2] : b
@@ -1165,7 +1167,7 @@ export class colorPalette extends colorPaletteOptions {
 		this.hsv[2] = hsv[2] === null ? null : Math.max(0, this.minV, Math.min(100, this.maxV, hsv[2]));
 
 		// update RGB according to final HSV, as some values might be trimmed
-		var rgb = this.HSV_RGB(this.hsv[0], this.hsv[1], this.hsv[2]);
+		let rgb = this.HSV_RGB(this.hsv[0], this.hsv[1], this.hsv[2]);
 		this.rgb[0] = rgb[0];
 		this.rgb[1] = rgb[1];
 		this.rgb[2] = rgb[2];
@@ -1175,7 +1177,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	fromString(str: string, flags?) {
-		var m;
+		let m;
 		if (m = str.match(/^\W*([0-9A-F]{3}([0-9A-F]{3})?)\W*$/i)) {
 			// HEX notation
 			//
@@ -1200,18 +1202,18 @@ export class colorPalette extends colorPaletteOptions {
 			return true;
 
 		} else if (m = str.match(/^\W*rgba?\(([^)]*)\)\W*$/i)) {
-			var params = m[1].split(',');
-			var re = /^\s*(\d*)(\.\d+)?\s*$/;
-			var mR, mG, mB;
+			let params = m[1].split(',');
+			let re = /^\s*(\d*)(\.\d+)?\s*$/;
+			let mR, mG, mB;
 			if (
 				params.length >= 3 &&
 				(mR = params[0].match(re)) &&
 				(mG = params[1].match(re)) &&
 				(mB = params[2].match(re))
 			) {
-				var r = parseFloat((mR[1] || '0') + (mR[2] || ''));
-				var g = parseFloat((mG[1] || '0') + (mG[2] || ''));
-				var b = parseFloat((mB[1] || '0') + (mB[2] || ''));
+				let r = parseFloat((mR[1] || '0') + (mR[2] || ''));
+				let g = parseFloat((mG[1] || '0') + (mG[2] || ''));
+				let b = parseFloat((mB[1] || '0') + (mB[2] || ''));
 				this.fromRGB(r, g, b, flags);
 				return true;
 			}
@@ -1244,9 +1246,9 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	rgbObj(): string {
-		var r = Math.round(this.rgb[0]);
-		var g = Math.round(this.rgb[1]);
-		var b = Math.round(this.rgb[2]);
+		let r = Math.round(this.rgb[0]);
+		let g = Math.round(this.rgb[1]);
+		let b = Math.round(this.rgb[2]);
 		return (
 			JSON.stringify(
 				{
@@ -1270,17 +1272,21 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	_processParentElementsInDOM() {
+		console.info("colorPalette._processParentElementsInDOM()");
 		if (this._linkedElementsProcessed) { return; }
+		console.info("colorPalette._linkedElementsProcessed=true");
 		this._linkedElementsProcessed = true;
 
-		var elm = this.targetElement;
+		let elm = this.targetElement;
 		do {
+			console.log("colorPalette._processParentElementsInDOM()");
+			console.log(elm);
 			// If the target element or one of its parent nodes has fixed position,
 			// then use fixed positioning instead
 			//
 			// Note: In Firefox, getComputedStyle returns null in a hidden iframe,
 			// that's why we need to check if the returned style object is non-empty
-			var currStyle = this.getStyle(elm);
+			let currStyle = this.getStyle(elm);
 			if (currStyle && currStyle.position.toLowerCase() === 'fixed') {
 				this.fixed = true;
 			}
@@ -1292,11 +1298,11 @@ export class colorPalette extends colorPaletteOptions {
 				// Note: It's not just offsetParents that can be scrollable,
 				// that's why we loop through all parent nodes
 				if (!elm._EventsAttached) {
-					attachEvent(elm, 'scroll', this.onParentScroll);
+					this.attachEvent(elm, 'scroll', this.onParentScroll);
 					elm._EventsAttached = true;
 				}
 			}
-		} while ((elm = elm.parentElement) && !isElementType(elm, 'body'));
+		} while ((elm = elm.parentElement) && !(elm instanceof HTMLBodyElement));
 	};
 
 
@@ -1310,11 +1316,11 @@ export class colorPalette extends colorPaletteOptions {
 		r /= 255;
 		g /= 255;
 		b /= 255;
-		var n = Math.min(Math.min(r, g), b);
-		var v = Math.max(Math.max(r, g), b);
-		var m = v - n;
+		let n = Math.min(Math.min(r, g), b);
+		let v = Math.max(Math.max(r, g), b);
+		let m = v - n;
 		if (m === 0) { return [null, 0, 100 * v]; }
-		var h = r === n ? 3 + (b - g) / m : (g === n ? 5 + (r - b) / m : 1 + (g - r) / m);
+		let h = r === n ? 3 + (b - g) / m : (g === n ? 5 + (r - b) / m : 1 + (g - r) / m);
 		return [
 			60 * (h === 6 ? 0 : h),
 			100 * (m / v),
@@ -1330,7 +1336,7 @@ export class colorPalette extends colorPaletteOptions {
 	// returns: [ 0-255, 0-255, 0-255 ]
 	//
 	HSV_RGB(h, s, v): hsvT {
-		var u = 255 * (v / 100);
+		let u = 255 * (v / 100);
 
 		if (h === null) {
 			return [u, u, u];
@@ -1339,10 +1345,10 @@ export class colorPalette extends colorPaletteOptions {
 		h /= 60;
 		s /= 100;
 
-		var i = Math.floor(h);
-		var f = i % 2 ? h - i : 1 - (h - i);
-		var m = u * (1 - s);
-		var n = u * (1 - s * f);
+		let i = Math.floor(h);
+		let f = i % 2 ? h - i : 1 - (h - i);
+		let m = u * (1 - s);
+		let n = u * (1 - s * f);
 		switch (i) {
 			case 6:
 			case 0: return [u, n, m];
@@ -1363,13 +1369,68 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	drawPicker() {
+		console.info("drawPicker()");
 
 		// At this point, when drawing the picker, we know what the parent elements are
 		// and we can do all related DOM operations, such as registering events on them
 		// or checking their positioning
 		this._processParentElementsInDOM();
 
+
+		let container =
+			this.container ?
+				fetchElement(this.container) :
+				document.getElementsByTagName('body')[0];
+
+		// For BUTTON elements it's important to stop them from sending the form when clicked
+		// (e.g. in Safari)
+		if (this.targetElement instanceof HTMLButtonElement) {
+			console.info('colorPalette.drawPicker() ; this.targetElement is of type HTMLButtonElement')
+			if (this.targetElement.onclick) {
+				let origCallback = this.targetElement.onclick;
+				this.targetElement.onclick = function (evt) {
+					origCallback.call(this, evt);
+					return false;
+				};
+			} else {
+				this.targetElement.onclick = function () { return false; };
+			}
+		}
+
+		// valueElement
+		if (this.valueElement) {
+			if (this.valueElement instanceof HTMLInputElement) {
+				console.info('colorPalette.drawPicker() ; this.valueElement is of type HTMLInputElement')
+				let updateField = function () {
+					this.fromString(this.valueElement.value, this.leaveValue);
+					this.dispatchFineChange(this);
+				};
+				this.attachEvent(this.valueElement, 'keyup', updateField);
+				this.attachEvent(this.valueElement, 'input', updateField);
+				this.attachEvent(this.valueElement, 'blur', this.blurValue);
+				this.valueElement.setAttribute('autocomplete', 'off');
+			}
+		}
+
+		// styleElement
+		if (this.styleElement) {
+			this.styleElement._OriginalStyle = {
+				backgroundImage: this.styleElement.style.backgroundImage,
+				backgroundColor: this.styleElement.style.backgroundColor,
+				color: this.styleElement.style.color
+			};
+		}
+
+		if (this.value) {
+			// Try to set the color from the .value option and if unsuccessful,
+			// export the current color
+			this.fromString(this.value) || this.exportColor();
+		} else {
+			this.importColor();
+		}
+
 		if (!this.picker) {
+			console.info("this.picker was not yet set ; creating this.picker");
 			this.picker = {
 				owner: null,
 				wrap: document.createElement('div'),
@@ -1379,7 +1440,7 @@ export class colorPalette extends colorPaletteOptions {
 				pad: document.createElement('div'),
 				padB: document.createElement('div'), // border
 				padM: document.createElement('div'), // mouse/touch area
-				padPal: this.createPalette(),
+				padPal: new paletteElementExt(),
 				cross: document.createElement('div'),
 				crossBY: document.createElement('div'), // border Y
 				crossBX: document.createElement('div'), // border X
@@ -1424,32 +1485,32 @@ export class colorPalette extends colorPaletteOptions {
 			this.picker.wrap.appendChild(this.picker.boxB);
 		}
 
-		var p = this.picker;
+		let p = this.picker;
 
-		var displaySlider = !!this.getSliderComponent();
-		var dims = this.getPickerDims();
-		var crossOuterSize = (2 * this.pointerBorderWidth + this.pointerThickness + 2 * this.crossSize);
-		var padToSliderPadding = this.getPadToSliderPadding();
-		var borderRadius = Math.min(
+		let displaySlider = !!this.getSliderComponent();
+		let dims = this.getPickerDims();
+		let crossOuterSize = (2 * this.pointerBorderWidth + this.pointerThickness + 2 * this.crossSize);
+		let padToSliderPadding = this.getPadToSliderPadding();
+		let borderRadius = Math.min(
 			this.borderRadius,
 			Math.round(this.padding * Math.PI)); // px
-		var padCursor = 'crosshair';
+		let padCursor = 'crosshair';
 
 		// wrap
-		p.wrap.style.clear = 'both';
-		p.wrap.style.width = (dims[0] + 2 * this.borderWidth) + 'px';
+		p.wrap.style.clear  = 'both';
+		p.wrap.style.width  = (dims[0] + 2 * this.borderWidth) + 'px';
 		p.wrap.style.height = (dims[1] + 2 * this.borderWidth) + 'px';
 		p.wrap.style.zIndex = String(this.zIndex);
 
 		// picker
-		p.box.style.width = dims[0] + 'px';
-		p.box.style.height = dims[1] + 'px';
+		p.box.style.width     = dims[0] + 'px';
+		p.box.style.height    = dims[1] + 'px';
 
 		p.boxS.style.position = 'absolute';
-		p.boxS.style.left = '0';
-		p.boxS.style.top = '0';
-		p.boxS.style.width = '100%';
-		p.boxS.style.height = '100%';
+		p.boxS.style.left     = '0';
+		p.boxS.style.top      = '0';
+		p.boxS.style.width    = '100%';
+		p.boxS.style.height   = '100%';
 		this.setBorderRadius(p.boxS, borderRadius + 'px');
 
 		// picker border
@@ -1470,17 +1531,18 @@ export class colorPalette extends colorPaletteOptions {
 
 		// pad
 		p.pad.style.position = 'relative';
-		p.pad.style.width = this.width + 'px';
-		p.pad.style.height = this.height + 'px';
+		p.pad.style.width    = this.width + 'px';
+		p.pad.style.height   = this.height + 'px';
 
 		// pad palettes (HSV and HVS)
 		p.padPal.draw(this.width, this.height, this.getPadYComponent());
+		console.info(p.padPal.elm);
 
 		// pad border
-		p.padB.style.position = 'absolute';
-		p.padB.style.left = this.padding + 'px';
-		p.padB.style.top = this.padding + 'px';
-		p.padB.style.border = this.insetWidth + 'px solid';
+		p.padB.style.position    = 'absolute';
+		p.padB.style.left        = this.padding + 'px';
+		p.padB.style.top         = this.padding + 'px';
+		p.padB.style.border      = this.insetWidth + 'px solid';
 		p.padB.style.borderColor = this.insetColor;
 
 		// pad mouse area
@@ -1544,30 +1606,30 @@ export class colorPalette extends colorPaletteOptions {
 
 		// slider
 		p.sld.style.overflow = 'hidden';
-		p.sld.style.width = this.sliderSize + 'px';
-		p.sld.style.height = this.height + 'px';
+		p.sld.style.width    = this.sliderSize + 'px';
+		p.sld.style.height   = this.height + 'px';
 
 		// slider gradient
 		p.sldGrad.draw(this.sliderSize, this.height, '#000', '#000');
 
 		// slider border
-		p.sldB.style.display = displaySlider ? 'block' : 'none';
-		p.sldB.style.position = 'absolute';
-		p.sldB.style.right = this.padding + 'px';
-		p.sldB.style.top = this.padding + 'px';
-		p.sldB.style.border = this.insetWidth + 'px solid';
+		p.sldB.style.display     = displaySlider ? 'block' : 'none';
+		p.sldB.style.position    = 'absolute';
+		p.sldB.style.right       = this.padding + 'px';
+		p.sldB.style.top         = this.padding + 'px';
+		p.sldB.style.border      = this.insetWidth + 'px solid';
 		p.sldB.style.borderColor = this.insetColor;
 
 		// slider mouse area
-		p.sldM._Instance = this;
-		p.sldM._ControlName = 'sld';
-		p.sldM.style.display = displaySlider ? 'block' : 'none';
+		p.sldM._Instance      = this;
+		p.sldM._ControlName   = 'sld';
+		p.sldM.style.display  = displaySlider ? 'block' : 'none';
 		p.sldM.style.position = 'absolute';
-		p.sldM.style.right = '0';
-		p.sldM.style.top = '0';
-		p.sldM.style.width = (this.sliderSize + padToSliderPadding / 2 + this.padding + 2 * this.insetWidth) + 'px';
-		p.sldM.style.height = dims[1] + 'px';
-		p.sldM.style.cursor = 'default';
+		p.sldM.style.right    = '0';
+		p.sldM.style.top      = '0';
+		p.sldM.style.width    = (this.sliderSize + padToSliderPadding / 2 + this.padding + 2 * this.insetWidth) + 'px';
+		p.sldM.style.height   = dims[1] + 'px';
+		p.sldM.style.cursor   = 'default';
 
 		// slider pointer inner and outer border
 		p.sldPtrIB.style.border =
@@ -1586,12 +1648,6 @@ export class colorPalette extends colorPaletteOptions {
 		p.sldPtrS.style.width = this.sliderSize + 'px';
 		p.sldPtrS.style.height = this.sliderPtrSpace + 'px';
 
-		// the Close button
-		function setBtnBorder() {
-			var insetColors = this.insetColor.split(/\s+/);
-			var outsetColor = insetColors.length < 2 ? insetColors[0] : insetColors[1] + ' ' + insetColors[0] + ' ' + insetColors[0] + ' ' + insetColors[1];
-			p.btn.style.borderColor = outsetColor;
-		}
 		p.btn.style.display = this.closable ? 'block' : 'none';
 		p.btn.style.position = 'absolute';
 		p.btn.style.left = this.padding + 'px';
@@ -1599,18 +1655,23 @@ export class colorPalette extends colorPaletteOptions {
 		p.btn.style.padding = '0 15px';
 		p.btn.style.height = this.buttonHeight + 'px';
 		p.btn.style.border = this.insetWidth + 'px solid';
-		setBtnBorder();
-		p.btn.style.color = this.buttonColor;
-		p.btn.style.font = '12px sans-serif';
-		p.btn.style.textAlign = 'center';
+
+		// the Close button
+		let insetColors         = this.insetColor.split(/\s+/);
+		let outsetColor         = insetColors.length < 2 ? insetColors[0] : insetColors[1] + ' ' + insetColors[0] + ' ' + insetColors[0] + ' ' + insetColors[1];
+		p.btn.style.borderColor = outsetColor;
+
+		p.btn.style.color       = this.buttonColor;
+		p.btn.style.font        = '12px sans-serif';
+		p.btn.style.textAlign   = 'center';
 		try {
-			p.btn.style.cursor = 'pointer';
+			p.btn.style.cursor	= 'pointer';
 		} catch (eOldIE) {
-			p.btn.style.cursor = 'hand';
+			p.btn.style.cursor	= 'hand';
 		}
-		p.btn.onmousedown = () => { this.hide(); };
+		p.btn.onmousedown 		= () => { this.hide(); };
 		p.btnT.style.lineHeight = this.buttonHeight + 'px';
-		p.btnT.innerHTML = '';
+		p.btnT.innerHTML 		= '';
 		p.btnT.appendChild(document.createTextNode(this.closeText));
 
 		// place pointers
@@ -1620,6 +1681,7 @@ export class colorPalette extends colorPaletteOptions {
 		// If we are changing the owner without first closing the picker,
 		// make sure to first deal with the old owner
 		if (this.picker.owner && this.picker.owner !== this) {
+			console.warn("This picker previously had an owner, and it WAS NOT THIS")
 			this.unsetClass(this.picker.owner.targetElement, this.activeClass);
 		}
 
@@ -1628,107 +1690,66 @@ export class colorPalette extends colorPaletteOptions {
 
 		// The redrawPosition() method needs picker.owner to be set, that's why we call it here,
 		// after setting the owner
-		if (isElementType(container, 'body')) {
+		if (container instanceof HTMLBodyElement) {
+			console.log('redrawPosition() is now set based upon Body');
 			this.redrawPosition();
 		} else {
+			console.log('redrawPosition() is now set based upon relative.');
 			this._drawPosition(0, 0, 'relative', false);
 		}
 
 		if (p.wrap.parentNode != container) {
+			console.info(`container.appendChild(${p.wrap})`);
 			container.appendChild(p.wrap);
 		}
 
-		attachEvent(p.wrap, 'touchstart', this.onControlTouchStart);
+		this.attachEvent(p.wrap, 'touchstart', this.onControlTouchStart);
 
+		console.trace(`${this.targetElement} class to ${this.activeClass}`);
 		this.setClass(this.targetElement, this.activeClass);
-
-		var container =
-			this.container ?
-				fetchElement(this.container) :
-				document.getElementsByTagName('body')[0];
-
-		// For BUTTON elements it's important to stop them from sending the form when clicked
-		// (e.g. in Safari)
-		if (isElementType(this.targetElement, 'button')) {
-			if (this.targetElement.onclick) {
-				var origCallback = this.targetElement.onclick;
-				this.targetElement.onclick = function (evt) {
-					origCallback.call(this, evt);
-					return false;
-				};
-			} else {
-				this.targetElement.onclick = function () { return false; };
-			}
-		}
-
-		// valueElement
-		if (this.valueElement) {
-			if (isElementType(this.valueElement, 'input')) {
-				var updateField = function () {
-					this.fromString(this.valueElement.value, this.leaveValue);
-					this.dispatchFineChange(this);
-				};
-				attachEvent(this.valueElement, 'keyup', updateField);
-				attachEvent(this.valueElement, 'input', updateField);
-				attachEvent(this.valueElement, 'blur', this.blurValue);
-				this.valueElement.setAttribute('autocomplete', 'off');
-			}
-		}
-
-		// styleElement
-		if (this.styleElement) {
-			this.styleElement._OriginalStyle = {
-				backgroundImage: this.styleElement.style.backgroundImage,
-				backgroundColor: this.styleElement.style.backgroundColor,
-				color: this.styleElement.style.color
-			};
-		}
-
-		if (this.value) {
-			// Try to set the color from the .value option and if unsuccessful,
-			// export the current color
-			this.fromString(this.value) || this.exportColor();
-		} else {
-			this.importColor();
-		}
 	}
 
 
 	redrawPad() {
+		let yComponent: number;
+		let rgb, rgb1, rgb2: rgbT;
+		let color1, color2: string;
 		// redraw the pad pointer
 		switch (this.getPadYComponent()) {
-			case 's': var yComponent = 1; break;
-			case 'v': var yComponent = 2; break;
+			case 's': yComponent = 1; break;
+			case 'v': yComponent = 2; break;
 		}
-		var x = Math.round((this.hsv[0] / 360) * (this.width - 1));
-		var y = Math.round((1 - this.hsv[yComponent] / 100) * (this.height - 1));
-		var crossOuterSize = (2 * this.pointerBorderWidth + this.pointerThickness + 2 * this.crossSize);
-		var ofs = -Math.floor(crossOuterSize / 2);
+		let x = Math.round((this.hsv[0] / 360) * (this.width - 1));
+		let y = Math.round((1 - this.hsv[yComponent] / 100) * (this.height - 1));
+		let crossOuterSize = (2 * this.pointerBorderWidth + this.pointerThickness + 2 * this.crossSize);
+		let ofs = -Math.floor(crossOuterSize / 2);
 		this.picker.cross.style.left = (x + ofs) + 'px';
 		this.picker.cross.style.top = (y + ofs) + 'px';
 
 		// redraw the slider
 		switch (this.getSliderComponent()) {
 			case 's':
-				var rgb1 = this.HSV_RGB(this.hsv[0], 100, this.hsv[2]);
-				var rgb2 = this.HSV_RGB(this.hsv[0], 0, this.hsv[2]);
-				var color1 = 'rgb(' +
+				console.info("redrawPad() called sliderComponent() ; return -> s");
+				rgb1 = this.HSV_RGB(this.hsv[0], 100, this.hsv[2]);
+				rgb2 = this.HSV_RGB(this.hsv[0], 0, this.hsv[2]);
+				color1 = 'rgb(' +
 					Math.round(rgb1[0]) + ',' +
 					Math.round(rgb1[1]) + ',' +
 					Math.round(rgb1[2]) + ')';
-				var color2 = 'rgb(' +
+				color2 = 'rgb(' +
 					Math.round(rgb2[0]) + ',' +
 					Math.round(rgb2[1]) + ',' +
 					Math.round(rgb2[2]) + ')';
 				this.picker.sldGrad.draw(this.sliderSize, this.height, color1, color2);
 				break;
 			case 'v':
-				var rgb = this.HSV_RGB(this.hsv[0], this.hsv[1], 100);
-				var color1 = 'rgb(' +
+				console.info("redrawPad() called sliderComponent() ; return -> v");
+				rgb = this.HSV_RGB(this.hsv[0], this.hsv[1], 100);
+				color1 = 'rgb(' +
 					Math.round(rgb[0]) + ',' +
 					Math.round(rgb[1]) + ',' +
 					Math.round(rgb[2]) + ')';
-				var color2 = '#000';
+				color2 = '#000';
 				this.picker.sldGrad.draw(this.sliderSize, this.height, color1, color2);
 				break;
 		}
@@ -1736,14 +1757,21 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	redrawSld() {
-		var sldComponent = this.getSliderComponent();
+		let yComponent: number;
+		let sldComponent = this.getSliderComponent();
 		if (sldComponent) {
 			// redraw the slider pointer
 			switch (sldComponent) {
-				case 's': var yComponent = 1; break;
-				case 'v': var yComponent = 2; break;
+				case 's':
+					console.info("redrawSld() called sliderComponent() ; return -> s");
+					yComponent = 1;
+					break;
+				case 'v':
+					console.info("redrawSld() called sliderComponent() ; return -> v");
+					yComponent = 2;
+					break;
 			}
-			var y = Math.round((1 - this.hsv[yComponent] / 100) * (this.height - 1));
+			let y = Math.round((1 - this.hsv[yComponent] / 100) * (this.height - 1));
 			this.picker.sldPtrOB.style.top = (y - (2 * this.pointerBorderWidth + this.pointerThickness) - Math.floor(this.sliderPtrSpace / 2)) + 'px';
 		}
 	}
@@ -1758,67 +1786,103 @@ export class colorPalette extends colorPaletteOptions {
 		this.importColor();
 	}
 
+	attachDOMReadyEvent(func) {
+		let fired = false;
+		let fireOnce = function () {
+			if (!fired) {
+				fired = true;
+				func();
+			}
+		};
+
+		if (document.readyState === 'complete') {
+			setTimeout(fireOnce, 1); // async
+			return;
+		}
+
+		if (document.addEventListener) {
+			document.addEventListener('DOMContentLoaded', fireOnce, false);
+
+			// Fallback
+			window.addEventListener('load', fireOnce, false);
+
+		} else if ((<any>document).attachEvent) {
+			/// START IE code ///
+			(<any>document).attachEvent('onreadystatechange', function () {
+				if (document.readyState === 'complete') {
+					(<any>document).detachEvent('onreadystatechange', arguments.callee);
+					fireOnce();
+				}
+			})
+
+				// Fallback
+				(<any>window).attachEvent('onload', fireOnce);
+
+			// IE7/8
+			if ((<any>document).documentElement.doScroll && window == window.top) {
+				let tryScroll = function () {
+					if (!document.body) { return; }
+					try {
+						(<any>document).documentElement.doScroll('left');
+						fireOnce();
+					} catch (e) {
+						setTimeout(tryScroll, 1);
+					}
+				};
+				tryScroll();
+			}
+		} /// END IE code ///
+	}
+
+	attachEvent(el, evnt, func) {
+		if (el.addEventListener) {
+			el.addEventListener(evnt, func, false);
+		} else if (el.attachEvent) {
+			el.attachEvent('on' + evnt, func);
+		}
+	}
 
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function installByClassName(className: string) {
-	var inputElms = document.getElementsByTagName('input');
-	var buttonElms = document.getElementsByTagName('button');
+	let inputElms = document.getElementsByTagName('input');
+	let buttonElms = document.getElementsByTagName('button');
 
-	this.tryInstallOnElements(inputElms, className);
-	this.tryInstallOnElements(buttonElms, className);
+	tryInstallOnElements(inputElms, className);
+	tryInstallOnElements(buttonElms, className);
 };
 
 
 function tryInstallOnElements(elms, className) {
-	var matchClass = new RegExp('(^|\\s)(' + className + ')(\\s*(\\{[^}]*\\})|\\s|$)', 'i');
+	let matchClass = new RegExp('(^|\\s)(' + className + ')(\\s*(\\{[^}]*\\})|\\s|$)', 'i');
 
-	for (var i = 0; i < elms.length; i += 1) {
+	for (let i = 0; i < elms.length; i += 1) {
 		if (elms[i].type !== undefined && elms[i].type.toLowerCase() == 'color') {
-			if (this.isColorAttrSupported) {
+			if (isColorAttrSupported) {
 				// skip inputs of type 'color' if supported by the browser
 				continue;
 			}
 		}
-		var m;
+		let m;
 		if (!elms[i].palettejs && elms[i].className && (m = elms[i].className.match(matchClass))) {
-			var targetElm = elms[i];
-			var optsStr = null;
+			let targetElm = elms[i];
+			let optsStr = null;
 
-			var dataOptions = this.getDataAttr(targetElm, 'palettejs');
+			let dataOptions = getDataAttr(targetElm, 'palettejs');
 			if (dataOptions !== null) {
 				optsStr = dataOptions;
 			} else if (m[4]) {
 				optsStr = m[4];
 			}
 
-			var opts = {};
+			let opts = {};
 			if (optsStr) {
 				try {
 					opts = (new Function('return (' + optsStr + ')'))();
 				} catch (eParseError) {
-					this.warn('Error parsing palettejs options: ' + eParseError + ':\n' + optsStr);
+					warn('Error parsing palettejs options: ' + eParseError + ':\n' + optsStr);
 				}
 			}
 			targetElm.palettejs = new colorPalette(targetElm, opts);
@@ -1828,7 +1892,7 @@ function tryInstallOnElements(elms, className) {
 
 
 function isColorAttrSupported() {
-	var elm = document.createElement('input');
+	let elm = document.createElement('input');
 	if (elm.setAttribute) {
 		elm.setAttribute('type', 'color');
 		if (elm.type.toLowerCase() == 'color') {
@@ -1840,7 +1904,7 @@ function isColorAttrSupported() {
 
 
 function isCanvasSupported() {
-	var elm = document.createElement('canvas');
+	let elm = document.createElement('canvas');
 	return !!(elm.getContext && elm.getContext('2d'));
 }
 
@@ -1850,27 +1914,13 @@ function fetchElement(mixed) {
 }
 
 
-function isElementType(elm, type) {
-	return elm.nodeName.toLowerCase() === type.toLowerCase();
-}
-
-
 function getDataAttr(el, name) {
-	var attrName = 'data-' + name;
-	var attrValue = el.getAttribute(attrName);
+	let attrName = 'data-' + name;
+	let attrValue = el.getAttribute(attrName);
 	if (attrValue !== null) {
 		return attrValue;
 	}
 	return null;
-}
-
-
-function attachEvent(el, evnt, func) {
-	if (el.addEventListener) {
-		el.addEventListener(evnt, func, false);
-	} else if (el.attachEvent) {
-		el.attachEvent('on' + evnt, func);
-	}
 }
 
 
@@ -1883,53 +1933,7 @@ function detachEvent(el, evnt, func) {
 }
 
 
-function attachDOMReadyEvent(func) {
-	var fired = false;
-	var fireOnce = function () {
-		if (!fired) {
-			fired = true;
-			func();
-		}
-	};
 
-	if (document.readyState === 'complete') {
-		setTimeout(fireOnce, 1); // async
-		return;
-	}
-
-	if (document.addEventListener) {
-		document.addEventListener('DOMContentLoaded', fireOnce, false);
-
-		// Fallback
-		window.addEventListener('load', fireOnce, false);
-
-	} else if ((<any>document).attachEvent) {
-		// IE
-		(<any>document).attachEvent('onreadystatechange', function () {
-			if (document.readyState === 'complete') {
-				(<any>document).detachEvent('onreadystatechange', arguments.callee);
-				fireOnce();
-			}
-		})
-
-			// Fallback
-			(<any>window).attachEvent('onload', fireOnce);
-
-		// IE7/8
-		if ((<any>document).documentElement.doScroll && window == window.top) {
-			var tryScroll = function () {
-				if (!document.body) { return; }
-				try {
-					(<any>document).documentElement.doScroll('left');
-					fireOnce();
-				} catch (e) {
-					setTimeout(tryScroll, 1);
-				}
-			};
-			tryScroll();
-		}
-	}
-}
 
 function warn(msg) {
 	if (window.console && window.console.warn) {
