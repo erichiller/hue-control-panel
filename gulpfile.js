@@ -55,7 +55,7 @@ gulp.task('svg-html-inject', function () {
 var webpack = require("webpack");
 var gutil = require("gulp-util");
 gulp.task("build-dev", ["webpack-build-dev", "svg-html-inject", "build-scss", "copy-resources"], function () {
-	gulp.watch(["src/**/*.ts", "src/**/*.js", "dep/lib/**/*.js"], ["webpack-build-dev"]);
+	gulp.watch(["src/**/*.ts", "src/**/*.js", "dep/lib/**/*.js", "dep/lib/**/*.ts"], ["webpack-build-dev"]);
 	gulp.watch(["dep/svg/**/*", "src/**/*.html"], ["svg-html-inject"]);
 	gulp.watch(["src/scss/**/*.scss"], ["build-scss"]);
 	gulp.watch(["dep/resource/**"], ["copy-resources"]);

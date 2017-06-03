@@ -69,7 +69,7 @@ class sliderGradient {
 	draw = null;
 	_vmlNS: string; // vmlNamespace._vmlNS
 
-	constructor(_vmlNS?: string){
+	constructor(_vmlNS?: string) {
 		this._vmlNS = _vmlNS;
 		if (isCanvasSupported()) {
 			// Canvas implementation for modern browsers
@@ -136,13 +136,13 @@ class sliderGradient {
 
 class BoxShadow {
 
-	hShadow:number;
-	vShadow:number;
-	blur:number;
-	spread:number;
+	hShadow: number;
+	vShadow: number;
+	blur: number;
+	spread: number;
 	color
 	inset
-	
+
 	constructor(hShadow: number, vShadow: number, blur: number, spread: number, color, inset?) {
 		this.hShadow = hShadow;
 		this.vShadow = vShadow;
@@ -189,7 +189,56 @@ class vmlNamespace {
 	}
 }
 
-class colorPalette {
+type hsvT = [
+	number | null,
+	number | null,
+	number | null
+]
+type rgbT = hsvT;
+
+class colorPaletteOptions {
+	//
+	// Color Picker options
+	//
+	width: number = 181; // width of color palette (in px)
+	height: number = 101; // height of color palette (in px)
+	showOnClick: boolean = true; // whether to display the color picker when user clicks on its target element
+	mode: string = 'HSV'; // HSV | HVS | HS | HV - layout of the color picker controls
+	position: string = 'bottom'; // left | right | top | bottom - position relative to the target element
+	smartPosition: boolean = true; // automatically change picker position when there is not enough space for it
+	sliderSize: number = 16; // px
+	crossSize: number = 8; // px
+	closable: boolean = false; // whether to display the Close button
+	closeText: string = 'Close';
+	buttonColor: string = '#000000'; // CSS color
+	buttonHeight: number = 18; // px
+	padding: number = 12; // px
+	backgroundColor: string = '#FFFFFF'; // CSS color
+	borderWidth: number = 1; // px
+	borderColor: string = '#BBBBBB'; // CSS color
+	borderRadius: number = 8; // px
+	insetWidth: number = 1; // px
+	insetColor: string = '#BBBBBB'; // CSS color
+	sliderPtrSpace: number = 3; // px
+	shadow: boolean = true; // whether to display shadow
+	shadowBlur: number = 15; // px
+	shadowColor: string = 'rgba(0,0,0,0.2)'; // CSS color
+	pointerColor: string = '#4C4C4C'; // px
+	pointerBorderColor: string = '#FFFFFF'; // px
+	pointerBorderWidth: number = 1; // px
+	pointerThickness: number = 2; // px
+	zIndex: number = 1000;
+	container: Element | null = null; // where to append the color picker (BODY element by default)
+
+	// By default, search for all elements with class="palettejs" and install a color picker on them.
+	//
+	// You can change what class name will be looked for by setting the property palettejs.lookupClass
+	// anywhere in your HTML document. To completely disable the automatic lookup, set it to null.
+	//
+	lookupClass: string = 'colorPalette';
+}
+
+export class colorPalette extends colorPaletteOptions {
 
 	_attachedGroupEvents: {}
 
@@ -219,64 +268,25 @@ class colorPalette {
 
 	// General options
 	//
-	value = null; // initial HEX color. To change it later, use methods fromString(), fromHSV() and fromRGB()
-	valueElement: HTMLInputElement; // element that will be used to display and input the color code
+	value: string = null; // initial HEX color. To change it later, use methods fromString(), fromHSV() and fromRGB()
+	valueElement: Partial<HTMLInputElement>; // element that will be used to display and input the color code
 	styleElement: styleElementExt; // element that will preview the picked color using CSS backgroundColor
 	required: boolean = true; // whether the associated text <input> can be left empty
 	refine: boolean = true; // whether to refine the entered color code (e.g. uppercase it and remove whitespace)
 	hash: boolean = false; // whether to prefix the HEX color code with # symbol
 	uppercase: boolean = true; // whether to uppercase the color code
-	onFineChange = null; // called instantly every time the color changes (value can be either a function or a string with javascript code)
+	onFineChange: (any) => {} | null = null; // called instantly every time the color changes (value can be either a function or a string with javascript code)
 	activeClass: string = 'palettejs-active'; // class to be set to the target element when a picker window is open on it
 	minS: number = 0; // min allowed saturation (0 - 100)
 	maxS: number = 100; // max allowed saturation (0 - 100)
 	minV: number = 0; // min allowed value (brightness) (0 - 100)
 	maxV: number = 100; // max allowed value (brightness) (0 - 100)
 
+	//
 	// Accessing the picked color
 	//
-	hsv = [0, 0, 100]; // read-only  [0-360, 0-100, 0-100]
-	rgb = [255, 255, 255]; // read-only  [0-255, 0-255, 0-255]
-
-	// Color Picker options
-	//
-	width: number = 181; // width of color palette (in px)
-	height: number = 101; // height of color palette (in px)
-	showOnClick: boolean = true; // whether to display the color picker when user clicks on its target element
-	mode: string = 'HSV'; // HSV | HVS | HS | HV - layout of the color picker controls
-	position: string = 'bottom'; // left | right | top | bottom - position relative to the target element
-	smartPosition: boolean = true; // automatically change picker position when there is not enough space for it
-	sliderSize: number = 16; // px
-	crossSize: number = 8; // px
-	closable: boolean = false; // whether to display the Close button
-	closeText: string = 'Close';
-	buttonColor: string = '#000000'; // CSS color
-	buttonHeight: number = 18; // px
-	padding: number = 12; // px
-	backgroundColor: string = '#FFFFFF'; // CSS color
-	borderWidth: number = 1; // px
-	borderColor: string = '#BBBBBB'; // CSS color
-	borderRadius: number = 8; // px
-	insetWidth: number = 1; // px
-	insetColor: string = '#BBBBBB'; // CSS color
-	sliderPtrSpace = 3; // px
-	shadow: boolean = true; // whether to display shadow
-	shadowBlur: number = 15; // px
-	shadowColor: string = 'rgba(0,0,0,0.2)'; // CSS color
-	pointerColor: string = '#4C4C4C'; // px
-	pointerBorderColor: string = '#FFFFFF'; // px
-	pointerBorderWidth: number = 1; // px
-	pointerThickness: number = 2; // px
-	zIndex: number = 1000;
-	container: Element | null = null; // where to append the color picker (BODY element by default)
-
-	// By default, search for all elements with class="palettejs" and install a color picker on them.
-	//
-	// You can change what class name will be looked for by setting the property palettejs.lookupClass
-	// anywhere in your HTML document. To completely disable the automatic lookup, set it to null.
-	//
-	lookupClass: string = 'palettejs';
-
+	hsv: hsvT = [0, 0, 100]; // read-only  [0-360, 0-100, 0-100]
+	rgb: rgbT = [255, 255, 255]; // read-only  [0-255, 0-255, 0-255]
 
 	register() {
 		attachDOMReadyEvent(this.init());
@@ -816,7 +826,7 @@ class colorPalette {
 
 
 
-	
+
 
 
 	createPalette() {
@@ -871,7 +881,7 @@ class colorPalette {
 		} else {
 			// VML fallback for IE 7 and 8
 
-			if (!this._vmlReady){
+			if (!this._vmlReady) {
 				this._vmlNamespace = new vmlNamespace();
 				this._vmlReady = true;
 			}
@@ -949,38 +959,54 @@ class colorPalette {
 	 * @param targetElement 
 	 * @param options 
 	 */
-	constructor(targetElement, options) {
+	constructor(targetElement: targetElementExt | string, options?: Partial<colorPaletteOptions>) {
+		super();
 
 		this.valueElement = targetElement; // element that will be used to display and input the color code
 		this.styleElement = targetElement; // element that will preview the picked color using CSS backgroundColor
-		this.targetElement = targetElement; 
 
 		// Find the target element
-		if (typeof this.targetElement === "string") {
-			var id = this.targetElement;
-			var elm = document.getElementById(id);
+		if (typeof targetElement === "string") {
+			let id = targetElement;
+			let elm = document.getElementById(id);
 			if (elm) {
-				this.targetElement = elm;
+				this.targetElement = <targetElementExt>elm;
+				warn("target element set ->");
+				console.log(elm);
 			} else {
 				warn('Could not find target element with ID \'' + id + '\'');
 			}
-		} else if (targetElement) {
-			this.targetElement = targetElement;
-		} else {
-			warn('Invalid target element: \'' + targetElement + '\'');
 		}
 
-		if (this.targetElement._LinkedInstance) {
-			warn('Cannot link palettejs twice to the same element. Skipping.');
-			return;
+
+		// function getProperty<T, K extends keyof T>(obj: T, key: K) {
+		// 	return obj[key];
+		// }
+		// if ( typeof this.targetElement !== "string"  &&
+		//  getProperty(this.targetElement , "_EventsAttached") ) {
+		// 	warn( " property exists " );
+		// }
+
+		// test if 
+		// if ((<targetElementExt>this.targetElement)._EventsAttached !== undefined) {
+		if (targetElement instanceof HTMLElement) {
+			if (this.targetElement._LinkedInstance) {
+				warn('Cannot link palette twice to the same element. Skipping.');
+				return;
+			} else {
+				this.targetElement = <targetElementExt>targetElement;
+			}
 		}
-		this.targetElement._LinkedInstance = this;
+		if (this.targetElement) {
+			this.targetElement._LinkedInstance = this;
+		} else {
+			warn(`Invalid target element: '${this.targetElement}' of type '${typeof this.targetElement}'`);
+		}
 
 		// Find the value element
 		this.valueElement = fetchElement(this.valueElement);
 		// Find the style element
 		this.styleElement = fetchElement(this.styleElement);
-
 
 		for (var opt in options) {
 			if (options.hasOwnProperty(opt)) {
@@ -1148,7 +1174,7 @@ class colorPalette {
 	};
 
 
-	fromString(str:string, flags?) {
+	fromString(str: string, flags?) {
 		var m;
 		if (m = str.match(/^\W*([0-9A-F]{3}([0-9A-F]{3})?)\W*$/i)) {
 			// HEX notation
@@ -1194,7 +1220,7 @@ class colorPalette {
 	};
 
 
-	toString():string {
+	toString(): string {
 		return (
 			(0x100 | Math.round(this.rgb[0])).toString(16).substr(1) +
 			(0x100 | Math.round(this.rgb[1])).toString(16).substr(1) +
@@ -1203,12 +1229,12 @@ class colorPalette {
 	};
 
 
-	toHEXString():string {
+	toHEXString(): string {
 		return '#' + this.toString().toUpperCase();
 	};
 
 
-	toRGBString():string {
+	toRGBString(): string {
 		return ('rgb(' +
 			Math.round(this.rgb[0]) + ',' +
 			Math.round(this.rgb[1]) + ',' +
@@ -1217,7 +1243,7 @@ class colorPalette {
 	};
 
 
-	rgbObj():string {
+	rgbObj(): string {
 		var r = Math.round(this.rgb[0]);
 		var g = Math.round(this.rgb[1]);
 		var b = Math.round(this.rgb[2]);
@@ -1233,7 +1259,7 @@ class colorPalette {
 	};
 
 
-	isLight():boolean {
+	isLight(): boolean {
 		return (
 			0.213 * this.rgb[0] +
 			0.715 * this.rgb[1] +
@@ -1241,7 +1267,7 @@ class colorPalette {
 			255 / 2
 		);
 	};
-	
+
 
 	_processParentElementsInDOM() {
 		if (this._linkedElementsProcessed) { return; }
@@ -1303,7 +1329,7 @@ class colorPalette {
 	//
 	// returns: [ 0-255, 0-255, 0-255 ]
 	//
-	HSV_RGB(h, s, v) {
+	HSV_RGB(h, s, v): hsvT {
 		var u = 255 * (v / 100);
 
 		if (h === null) {
@@ -1605,7 +1631,7 @@ class colorPalette {
 		if (isElementType(container, 'body')) {
 			this.redrawPosition();
 		} else {
-			this._drawPosition( 0, 0, 'relative', false);
+			this._drawPosition(0, 0, 'relative', false);
 		}
 
 		if (p.wrap.parentNode != container) {

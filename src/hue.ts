@@ -1,6 +1,6 @@
 import { DEFAULT_HOME_LIGHT } from './lighting';
 import { Bridge , DEFAULT_BRIDGE } from './bridge';
-import '../dep/lib/palette';
+import { colorPalette } from '../dep/lib/palette';
 
 // replace
 let lightID = 11; // homepage
@@ -41,7 +41,7 @@ function startup() {
 	let navigateHome: HTMLElement = <HTMLElement>document.querySelector("#navigate-home");
 	navigateHome.addEventListener("click", () => { document.querySelector("#main").classList.toggle("rotate") } );
 	
-	let colorPalette = new palettejs
+	let palette = new colorPalette("colorPalette");
 }
 
 
