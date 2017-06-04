@@ -19,8 +19,8 @@ let palette = new colorPalette("colorPalette", {
 	borderWidth: 1,
 	position: 'top',
 	activeClass: "eric-rocks"
-});
-palette.register();
+},
+true);
 
 function startup() {
 	let hueColor: HTMLFormElement = <HTMLFormElement>document.querySelector("#status_rgb_red");
