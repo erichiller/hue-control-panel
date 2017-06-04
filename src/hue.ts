@@ -12,7 +12,7 @@ let bridge = DEFAULT_BRIDGE;
 window.addEventListener("DOMContentLoaded", startup, false);
 let palette = new colorPalette("colorPalette", {
 	lookupClass: null,
-	onFineChange: () => { setHueColor(this) },
+	onFineChange: setHueColor,
 	valueElement: false,
 	styleElement: false,
 	padding: 2,
@@ -55,16 +55,15 @@ function startup() {
 }
 
 
-export function setHueColor(jscolor) {
-	console.log(jscolor)
-	DEFAULT_HOME_LIGHT.setColorHex(jscolor.toHEXString())
+export function setHueColor() {
+	DEFAULT_HOME_LIGHT.setColorHex(this.toHEXString())
 
 	document.getElementById('status_rgb_red').innerHTML =
-		Math.round(jscolor.rgb[0]).toString();
+		Math.round(this.rgb[0]).toString();
 	document.getElementById('status_rgb_green').innerHTML =
-		Math.round(jscolor.rgb[1]).toString();
+		Math.round(this.rgb[1]).toString();
 	document.getElementById('status_rgb_blue').innerHTML =
-		Math.round(jscolor.rgb[2]).toString();
+		Math.round(this.rgb[2]).toString();
 }
 
 

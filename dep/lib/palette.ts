@@ -152,57 +152,14 @@ class paletteElementExt {
 
 
 }
-
-function is<T>( check: Object): check is T {
-	console.log(`testing->is() found properties=>`);
-	console.log(Object.getOwnPropertyNames(check));
-
-	type t = keyof T;
-
-	let props = Object.getOwnPropertyNames(check);
-console.log("trying |type| start >>>>");
-	for (let i=0; i<props.length; i++  ){
-		let prop = props[i];
-		if(<t>prop){
-			console.log(true);
-			console.log(prop);
-			console.log(<t>prop);
-		}
-		else {
-			console.log(false) };
+function isControlElementExt(o: Object): o is controlElementExt {
+	return ( (<controlElementExt>o).Instance !== undefined ||
+		(<controlElementExt>o).ControlName !== undefined )
 }
-console.log("<<<< end trying |type|");
-
-
-
-	// for(const f in <T>comparator){
-	// 	console.log(f);
-	// }
-
-	function getProperty<T, K extends keyof T>(obj: T, key: K) {
-		return true;
-	}
-
-
-
-	// console.log("t-p->");
-	// console.log(Object.getOwnPropertyNames(<T>check));
-	console.log("t-->");
-	// console.log(Object.entries(<T>comparator));
-	console.log("id(comparator)-->");
-
-
-	console.log("<--t");
-	console.log("result=");
-	console.log( Object.getOwnPropertyNames(<T>check).includesArray(Object.getOwnPropertyNames(check)) );
-
-	return Object.getOwnPropertyNames(<T>check).includesArray(Object.getOwnPropertyNames(check));
-	// console.log(Object.getOwnPropertyNames(comparator));
-	// console.log(comparator.hasOwnProperty(Object.getOwnPropertyNames(check)[0]));
-	// return comparator.hasOwnProperty(Object.getOwnPropertyNames(check)[0]);
-	// return Object.getOwnPropertyNames(comparator).includesArray(Object.getOwnPropertyNames(check) );
+function isTargetElementExt(o: Object): o is targetElementExt {
+	return ((<targetElementExt>o).EventsAttached !== undefined ||
+		(<targetElementExt>o).LinkedInstance !== undefined)
 }
-
 interface controlElementExt extends HTMLElement {
 	Instance?: colorPalette;
 	ControlName?: string;
@@ -212,6 +169,8 @@ interface targetElementExt extends HTMLElement {
 	EventsAttached?: boolean;
 	LinkedInstance?: colorPalette;
 }
+
+type pointerType = "mouse" | "touch";
 
 // type styleElement <CSSStyleDeclaration> = {
 // 	[P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
@@ -406,7 +365,14 @@ class colorPaletteOptions {
 	refine            : boolean = true; // whether to refine the entered color code (e.g. uppercase it and remove whitespace)
 	hash              : boolean = false; // whether to prefix the HEX color code with # symbol
 	uppercase         : boolean = true; // whether to uppercase the color code
-	onFineChange      : (any) => any | null = null; // called instantly every time the color changes (value can be either a function or a string with javascript code)
+	/**
+	 * called instantly every time the color changes (value can be either a function or a string with javascript code)
+	 * 
+	 * @type {Function} will be given a `this` equal to the caller colorPalette
+	 * @memberof colorPaletteOptions
+	 */
+	onFineChange      : Function;
+
 	activeClass       : string = 'palette-active'; // class to be set to the target element when a picker window is open on it
 	minS              : number = 0; // min allowed saturation (0 - 100)
 	maxS              : number = 100; // max allowed saturation (0 - 100)
@@ -422,7 +388,7 @@ class colorPaletteOptions {
 
 export class colorPalette extends colorPaletteOptions {
 
-	attachedGroupEvents: {}
+	attachedGroupEvents = {}
 
 	picker: picker;
 
@@ -522,7 +488,7 @@ export class colorPalette extends colorPaletteOptions {
 		}
 	}
 
-	attachGroupEvent(groupName, el, evnt, func) {
+	attachGroupEvent(groupName, el: HTMLElement, evnt: string, func) {
 		if (!this.attachedGroupEvents.hasOwnProperty(groupName)) {
 			this.attachedGroupEvents[groupName] = [];
 		}
@@ -867,30 +833,26 @@ export class colorPalette extends colorPaletteOptions {
 
 
 
-	onDocumentMousedown(e) {
+	onDocumentMousedown(e: Event) {
 		if (!e) { e = window.event; }
-		let target: Partial<controlElementExt | targetElementExt> = e.target || e.srcElement;
+		let target: controlElementExt | targetElementExt = <controlElementExt | targetElementExt>(e.target || e.srcElement);
 		// let target = e.target || e.srcElement;
 
 
 		console.info(">-------------------new (testing) onDocumentMousedown-------------------<")
 
-		console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance ; should be true when clicking target; ${is<targetElementExt>(target)}`);
-		console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance ; should be true when clicking target; ${(target instanceof targetElementExt)}`);
+		console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance ; should be true when clicking target; ${isTargetElementExt(target) }`);
 
-
-		console.log(`testing->RESULT IS controlElementExt; Instance | ControlName'; should be true when clicking control; ${is<controlElementExt>(target)}`);
+		// console.log(`testing->RESULT IS controlElementExt; Instance | ControlName'; should be true when clicking control; ${extendedElementType(target) instanceof controlElementExt }`);
 		
-
-
-		if (is<targetElementExt>(target)) {
+		if ( isTargetElementExt(target) ) {
 			console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance`);
 			console.info("colorPalette.onDocumentMouseDown() ; has linked instance");
 			if (target.LinkedInstance.showOnClick) {
 				console.info("colorPalette.onDocumentMouseDown() ; has showOneClick");
 				target.LinkedInstance.show();
 			}
-		} else if ( is<controlElementExt>(target) ) {
+		} else if ( isControlElementExt(target) ) {
 			console.log(`testing->RESULT IS controlElementExt; Instance | ControlName`);
 
 			console.info("colorPalette.onDocumentMouseDown() ; has Controlname");
@@ -907,46 +869,46 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	onControlTouchStart(e) {
+	onControlTouchStart(e: Event) {
 		if (!e) { e = window.event; }
-		let target = e.target || e.srcElement;
+		let target: controlElementExt | targetElementExt = <controlElementExt | targetElementExt>(e.target || e.srcElement);
 
-		if (target.ControlName) {
+		if ( isControlElementExt(target) ) {
 			this.onControlPointerStart(e, target, target.ControlName, 'touch');
 		}
 	}
 
 
-	onWindowResize(e) {
+	onWindowResize(e: Event) {
 		this.redrawPosition();
 	}
 
 
-	onParentScroll(e) {
+	onParentScroll(e: Event) {
 		// hide the picker when one of the parent elements is scrolled
 		if (this.picker && this.picker.owner) {
 			this.picker.owner.hide();
 		}
 	}
 
-	preventDefault(e) {
+	preventDefault(e: Event) {
 		if (e.preventDefault) { e.preventDefault(); }
 		e.returnValue = false;
 	}
 
 
 
-	onControlPointerStart(e:Event, target:controlElementExt, controlName, pointerType) {
+	onControlPointerStart(e:Event, target:controlElementExt, controlName: string, pointerType: pointerType) {
 		console.info('colorPalette.onControlPointerStart()');
 		this.preventDefault(e);
 		this.captureTarget(target);
 
 
-		let pointerMoveEvent: {
+		const pointerMoveEvent = {
 			mouse: 'mousemove',
 			touch: 'touchmove'
 		}
-		let pointerEndEvent: {
+		const pointerEndEvent = {
 			mouse: 'mouseup',
 			touch: 'touchend'
 		}
@@ -993,8 +955,8 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	onDocumentPointerMove(e, target, controlName, pointerType, offset) {
-		return function (e) {
+	onDocumentPointerMove(e: Event, target: EventTarget, controlName: string, pointerType: pointerType, offset) {
+		return (e) => {
 			switch (controlName) {
 				case 'pad':
 					if (!e) { e = window.event; }
@@ -1012,7 +974,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	onDocumentPointerEnd(e, target, controlName, pointerType) {
+	onDocumentPointerEnd(e: Event, target: EventTarget, controlName: string, pointerType: pointerType) {
 		return function (e) {
 			this.detachGroupEvents('drag');
 			this.releaseTarget();
@@ -1024,7 +986,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	dispatchChange() {
+	dispatchChange(): void {
 		if (this.valueElement) {
 			if (this.valueElement instanceof HTMLInputElement) {
 				this.fireEvent(this.valueElement, 'change');
@@ -1033,10 +995,10 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	dispatchFineChange() {
+	dispatchFineChange(): void {
 		console.info(`colorPalette.dispatchFineChange()`);
 		if (this.onFineChange) {
-			console.info(`colorPalette.dispatchFineChange() ; present`);
+			console.info(`colorPalette.dispatchFineChange() ; present=${this.onFineChange}`);
 			let callback;
 			if (typeof this.onFineChange === 'string') {
 				callback = new Function(this.onFineChange);
@@ -1048,7 +1010,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	setPad(this, e, ofsX, ofsY) {
+	setPad(this, e, ofsX, ofsY): void {
 		let pointerAbs = this.getAbsPointerPos(e);
 		let x = ofsX + pointerAbs.x - this.pointerOrigin.x - this.padding - this.insetWidth;
 		let y = ofsY + pointerAbs.y - this.pointerOrigin.y - this.padding - this.insetWidth;
@@ -1063,7 +1025,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	setSld(e, ofsY) {
+	setSld(e, ofsY): void {
 		let pointerAbs = this.getAbsPointerPos(e);
 		let y = ofsY + pointerAbs.y - this.pointerOrigin.y - this.padding - this.insetWidth;
 
@@ -1078,26 +1040,26 @@ export class colorPalette extends colorPaletteOptions {
 
 
 
-	hide() {
+	hide(): void {
 		if (this.isPickerOwner()) {
 			this.detachPicker();
 		}
 	};
 
 
-	show() {
+	show(): void {
 		this.drawPicker();
 	};
 
 
-	redraw() {
+	redraw(): void {
 		if (this.isPickerOwner()) {
 			this.drawPicker();
 		}
 	};
 
 
-	importColor() {
+	importColor(): void {
 		if (!this.valueElement) {
 			this.exportColor();
 		} else {
@@ -1133,7 +1095,7 @@ export class colorPalette extends colorPaletteOptions {
 	};
 
 
-	exportColor(flags?) {
+	exportColor(flags?): void {
 		if (!(flags & this.leaveValue) && this.valueElement) {
 			let value = this.toString();
 			if (this.uppercase) { value = value.toUpperCase(); }
@@ -1172,7 +1134,7 @@ export class colorPalette extends colorPaletteOptions {
 	// s: 0-100
 	// v: 0-100
 	//
-	fromHSV(h: number | null, s: number | null, v: number | null, flags?) { // null = don't change
+	fromHSV(h: number | null, s: number | null, v: number | null, flags?): boolean { // null = don't change
 		if (h !== null) {
 			if (isNaN(h)) { return false; }
 			h = Math.max(0, Math.min(360, h));
@@ -1200,7 +1162,7 @@ export class colorPalette extends colorPaletteOptions {
 	// g: 0-255
 	// b: 0-255
 	//
-	fromRGB(r: number | null, g: number | null, b: number | null, flags?) { // null = don't change
+	fromRGB(r: number | null, g: number | null, b: number | null, flags?): boolean { // null = don't change
 		if (r !== null) {
 			if (isNaN(r)) { return false; }
 			r = Math.max(0, Math.min(255, r));
@@ -1332,7 +1294,7 @@ export class colorPalette extends colorPaletteOptions {
 	};
 
 
-	processParentElementsInDOM() {
+	processParentElementsInDOM():void {
 		console.info("colorPalette.processParentElementsInDOM()");
 		if (this.linkedElementsProcessed) { return; }
 		console.info("colorPalette.linkedElementsProcessed=true");
@@ -1366,14 +1328,14 @@ export class colorPalette extends colorPaletteOptions {
 		} while ((elm = elm.parentElement) && !(elm instanceof HTMLBodyElement));
 	};
 
-	detachPicker() {
+	detachPicker():void {
 		this.unsetClass(this.targetElement, this.activeClass);
 		this.picker.wrap.parentNode.removeChild(this.picker.wrap);
 		delete this.picker.owner;
 	}
 
 
-	drawPicker() {
+	drawPicker():void {
 		console.info("drawPicker()");
 
 		// At this point, when drawing the picker, we know what the parent elements are
@@ -1715,7 +1677,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	redrawPad() {
+	redrawPad(): void {
 		let yComponent: number;
 		let rgb, rgb1, rgb2: rgbT;
 		let color1, color2: string;
@@ -1761,7 +1723,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	redrawSld() {
+	redrawSld():void {
 		let yComponent: number;
 		let sldComponent = this.getSliderComponent();
 		if (sldComponent) {
@@ -1787,11 +1749,11 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	blurValue() {
+	blurValue():void {
 		this.importColor();
 	}
 
-	attachDOMReadyEvent(func) {
+	attachDOMReadyEvent(func): void {
 		let fired = false;
 		let fireOnce = function () {
 			if (!fired) {
@@ -1839,11 +1801,21 @@ export class colorPalette extends colorPaletteOptions {
 		} /// END IE code ///
 	}
 
-	attachEvent(el, evnt, func) {
+	/**
+	 * Attaches Event to element pointing to func
+	 * 
+	 * @param {EventTarget} el 
+	 * @param {string} evnt 
+	 * @param {any} func 
+	 * 
+	 * @memberof colorPalette
+	 */
+	attachEvent(el: EventTarget, evnt: string, func):void {
 		if (el.addEventListener) {
 			el.addEventListener(evnt, func, false);
-		} else if (el.attachEvent) {
-			el.attachEvent('on' + evnt, func);
+		} else if ((<any>el).attachEvent) {
+			// Use the non-standard attachEvent for old school IE
+			(<any>el).attachEvent('on' + evnt, func);
 		}
 	}
 
