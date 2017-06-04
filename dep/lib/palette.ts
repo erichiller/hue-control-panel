@@ -153,6 +153,56 @@ class paletteElementExt {
 
 }
 
+function is<T>( check: Object): check is T {
+	console.log(`testing->is() found properties=>`);
+	console.log(Object.getOwnPropertyNames(check));
+
+	type t = keyof T;
+
+	let props = Object.getOwnPropertyNames(check);
+console.log("trying |type| start >>>>");
+	for (let i=0; i<props.length; i++  ){
+		let prop = props[i];
+		if(<t>prop){
+			console.log(true);
+			console.log(prop);
+			console.log(<t>prop);
+		}
+		else {
+			console.log(false) };
+}
+console.log("<<<< end trying |type|");
+
+
+
+	// for(const f in <T>comparator){
+	// 	console.log(f);
+	// }
+
+	function getProperty<T, K extends keyof T>(obj: T, key: K) {
+		return true;
+	}
+
+
+
+	// console.log("t-p->");
+	// console.log(Object.getOwnPropertyNames(<T>check));
+	console.log("t-->");
+	// console.log(Object.entries(<T>comparator));
+	console.log("id(comparator)-->");
+
+
+	console.log("<--t");
+	console.log("result=");
+	console.log( Object.getOwnPropertyNames(<T>check).includesArray(Object.getOwnPropertyNames(check)) );
+
+	return Object.getOwnPropertyNames(<T>check).includesArray(Object.getOwnPropertyNames(check));
+	// console.log(Object.getOwnPropertyNames(comparator));
+	// console.log(comparator.hasOwnProperty(Object.getOwnPropertyNames(check)[0]));
+	// return comparator.hasOwnProperty(Object.getOwnPropertyNames(check)[0]);
+	// return Object.getOwnPropertyNames(comparator).includesArray(Object.getOwnPropertyNames(check) );
+}
+
 interface controlElementExt extends HTMLElement {
 	Instance?: colorPalette;
 	ControlName?: string;
@@ -416,8 +466,8 @@ export class colorPalette extends colorPaletteOptions {
 				}
 			});
 		}
-		this.attachEvent(document, 'mousedown', this.onDocumentMouseDown);
-		this.attachEvent(window, 'resize', this.onWindowResize);
+		this.attachEvent(document, 'mousedown', eventToColorPalette);
+		this.attachEvent(window, 'resize', eventToColorPalette);
 		if (document.readyState === 'complete') {
 			// can't load until the DOM is ready
 			this.loadElements(targetElement, options);
@@ -442,7 +492,7 @@ export class colorPalette extends colorPaletteOptions {
 				this.targetElement = <targetElementExt>elm;
 				console.info("target element set ->" + elm.id);
 			} else {
-				warn('Could not find target element with ID \'' + id + '\'');
+				console.warn('Could not find target element with ID \'' + id + '\'');
 			}
 		} else if (targetElement instanceof HTMLElement) {
 			this.targetElement = <targetElementExt>targetElement;
@@ -450,7 +500,7 @@ export class colorPalette extends colorPaletteOptions {
 
 		if (<targetElementExt>targetElement) {
 			if (this.targetElement.LinkedInstance) {
-				warn('Cannot link palette twice to the same element. Skipping.');
+				console.warn('Cannot link palette twice to the same element. Skipping.');
 				return;
 			} else {
 				this.targetElement.LinkedInstance = this;
@@ -528,13 +578,13 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	classNameToList(className) {
+	classNameToList(className: string): string[] {
 		return className.replace(/^\s+|\s+$/g, '').split(/\s+/);
 	}
 
 
 	// The className parameter (str) can only contain a single class name
-	hasClass(elm, className) {
+	hasClass(elm: Partial<HTMLElement>, className:string):boolean {
 		if (!className) {
 			return false;
 		}
@@ -543,7 +593,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
-	setClass(elm, className) {
+	setClass(elm: Partial<HTMLElement>, className:string) {
 		let classList = this.classNameToList(className);
 		for (let i = 0; i < classList.length; i += 1) {
 			if (!this.hasClass(elm, classList[i])) {
@@ -554,7 +604,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
-	unsetClass(elm, className) {
+	unsetClass(elm: Partial<HTMLElement>, className:string) {
 		let classList = this.classNameToList(className);
 		for (let i = 0; i < classList.length; i += 1) {
 			let repl = new RegExp(
@@ -573,7 +623,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	setStyle(elm: HTMLElement, property: string, value: any) {
+	setStyle(elm: Partial<HTMLElement>, property: string, value: any) {
 		let helper = document.createElement('div');
 		/**
 		 * Returns the first property that is supported by the current browser
@@ -815,22 +865,38 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	onDocumentMouseDown(e) {
+
+
+	onDocumentMousedown(e) {
 		if (!e) { e = window.event; }
-		let target = e.target || e.srcElement;
+		let target: Partial<controlElementExt | targetElementExt> = e.target || e.srcElement;
+		// let target = e.target || e.srcElement;
+
+
+		console.info(">-------------------new (testing) onDocumentMousedown-------------------<")
+
+		console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance ; should be true when clicking target; ${is<targetElementExt>(target)}`);
+		console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance ; should be true when clicking target; ${(target instanceof targetElementExt)}`);
+
+
+		console.log(`testing->RESULT IS controlElementExt; Instance | ControlName'; should be true when clicking control; ${is<controlElementExt>(target)}`);
 		
 
-		if (target.LinkedInstance) {
+
+		if (is<targetElementExt>(target)) {
+			console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance`);
 			console.info("colorPalette.onDocumentMouseDown() ; has linked instance");
 			if (target.LinkedInstance.showOnClick) {
 				console.info("colorPalette.onDocumentMouseDown() ; has showOneClick");
 				target.LinkedInstance.show();
 			}
-		} else if (target.ControlName) {
+		} else if ( is<controlElementExt>(target) ) {
+			console.log(`testing->RESULT IS controlElementExt; Instance | ControlName`);
+
 			console.info("colorPalette.onDocumentMouseDown() ; has Controlname");
 			this.onControlPointerStart(e, target, target.ControlName, 'mouse');
 		} else {
-			console.log(document.querySelectorAll(this.markedClass));
+			console.log(document.querySelectorAll("."+this.markedClass));
 			console.info(`colorPalette.onDocumentMouseDown() ; mouse is outside ; this.picker=${this.picker} ; this.picker.owner=${this.picker.owner}`);
 			// Mouse is outside the picker controls -> hide the color picker!
 			if (this.picker && this.picker.owner) {
@@ -870,7 +936,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 
-	onControlPointerStart(e, target, controlName, pointerType) {
+	onControlPointerStart(e:Event, target:controlElementExt, controlName, pointerType) {
 		console.info('colorPalette.onControlPointerStart()');
 		this.preventDefault(e);
 		this.captureTarget(target);
@@ -1435,6 +1501,7 @@ export class colorPalette extends colorPaletteOptions {
 		let padCursor = 'crosshair';
 
 		// wrap
+		this.setClass(this.picker.wrap,this.markedClass);
 		this.picker.wrap.style.clear  = 'both';
 		this.picker.wrap.style.width  = (dims[0] + 2 * this.borderWidth) + 'px';
 		this.picker.wrap.style.height = (dims[1] + 2 * this.borderWidth) + 'px';
@@ -1820,7 +1887,7 @@ function tryInstallOnElements(elms, className) {
 				try {
 					opts = (new Function('return (' + optsStr + ')'))();
 				} catch (eParseError) {
-					warn('Error parsing palettejs options: ' + eParseError + ':\n' + optsStr);
+					console.warn('Error parsing palettejs options: ' + eParseError + ':\n' + optsStr);
 				}
 			}
 			targetElm.palettejs = new colorPalette(targetElm, opts);
@@ -1925,12 +1992,35 @@ function HSVtoRGB(h, s, v): hsvT {
 	}
 }
 
-
-
-
-
-function warn(msg) {
-	if (window.console && window.console.warn) {
-		window.console.warn(msg);
+function eventToColorPalette(event: Event) {
+	// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+	// find ourselves a this
+	let owner: colorPalette | false = false;
+	if ((<any>event.target).owner) {
+		owner = (<any>event.target).owner }
+	else if ((<any>event.target).LinkedInstance) { 
+		// LinkedInstance indicates targetElementExt
+		owner = (<any>event.target).LinkedInstance }
+	else if ((<any>event.target).Instance) { 
+		// Instance is for controlElementExt
+		owner = (<any>event.target).Instance }
+	else {
+		console.warn(`event failed, no owner found for event=${event}`);
+		return false;
 	}
+	// event.target is the element which was _CLICKED_ on
+	// event.currentTarget is the element which had the event _ATTACHED_
+	let attachedNode = ((<any>event.currentTarget).nodeName).
+		upperCaseFirst().
+		replace(/^[\s\uFEFF\xA0#]+|[\s\uFEFF\xA0]+$/g, '');
+	attachedNode = attachedNode.charAt(0).toUpperCase() + attachedNode.slice(1);
+	let eventType = event.type.upperCaseFirst();
+	console.log(`attachedNode=${attachedNode}`)
+	let call: string = 'on' + attachedNode + eventType;
+	console.log(`received event(`+
+		`${event} calling `+
+		`${(<any>event.target).owner}[${call}]()`);
+	
+	owner[call](event);
+	
 }
