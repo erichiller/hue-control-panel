@@ -56,7 +56,7 @@ function startup() {
 
 
 export function setHueColor() {
-	DEFAULT_HOME_LIGHT.setColorHex(this.toHEXString())
+	DEFAULT_HOME_LIGHT.setColorHex(this.toHEXString());
 
 	document.getElementById('status_rgb_red').innerHTML =
 		Math.round(this.rgb[0]).toString();

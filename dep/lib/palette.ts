@@ -383,12 +383,20 @@ class colorPaletteOptions {
 	// You can change what class name will be looked for by setting the option lookupClass
 	// anywhere in your HTML document. To completely disable the automatic lookup, set it to null.
 	lookupClass       : string | null = 'colorPalette';
-	markedClass       : string = this.lookupClass;
+	public static markedClass: string = "colorPalette";;
+}
+
+type eventGroup = {
+	el: HTMLElement,
+	ev: string,
+	func: Function
+}
+interface GroupEvents {
+	[GroupName: string]: eventGroup[] ;
 }
 
 export class colorPalette extends colorPaletteOptions {
-
-	attachedGroupEvents = {}
+	attachedGroupEvents: GroupEvents = {}
 
 	picker: picker;
 
@@ -488,25 +496,28 @@ export class colorPalette extends colorPaletteOptions {
 		}
 	}
 
-	attachGroupEvent(groupName, el: HTMLElement, evnt: string, func) {
-		if (!this.attachedGroupEvents.hasOwnProperty(groupName)) {
-			this.attachedGroupEvents[groupName] = [];
+
+	attachGroupEvent(groupName:string, el: HTMLElement, evnt: string, func:Function) {
+		if (!this.attachedGroupEvents.groupName) {
+			this.attachedGroupEvents.groupName = new Array({ el: el, ev: evnt, func: func });
+		} else {
+			this.attachedGroupEvents.groupName.push({el: el, ev: evnt, func: func});
 		}
-		this.attachedGroupEvents[groupName].push([el, evnt, func]);
 		this.attachEvent(el, evnt, func);
 	}
 
 
 	detachGroupEvents(groupName) {
-		if (this.attachedGroupEvents.hasOwnProperty(groupName)) {
-			for (let i = 0; i < this.attachedGroupEvents[groupName].length; i += 1) {
-				let evt = this.attachedGroupEvents[groupName][i];
-				detachEvent(evt[0], evt[1], evt[2]);
+		console.log(`ATTEMPT in detachGroupEvents SAFELY REMOVE GROUP EVENTS FOR ${groupName}`);
+		if (this.attachedGroupEvents.groupName.length) {
+			for (let i = 0; i < this.attachedGroupEvents.groupName.length; i ++) {
+				let evt = this.attachedGroupEvents.groupName[i];
+				detachEvent(evt.el, evt.ev, evt.func);
 			}
-			delete this.attachedGroupEvents[groupName];
+			console.log(`SAFELY REMOVE GROUP !!! DELETE !!! EVENTS FOR ${groupName}`);
+			delete this.attachedGroupEvents.groupName;
 		}
 	}
-
 
 
 	captureTarget(target) {
@@ -544,7 +555,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	classNameToList(className: string): string[] {
+	static classNameToList(className: string): string[] {
 		return className.replace(/^\s+|\s+$/g, '').split(/\s+/);
 	}
 
@@ -560,7 +571,7 @@ export class colorPalette extends colorPaletteOptions {
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
 	setClass(elm: Partial<HTMLElement>, className:string) {
-		let classList = this.classNameToList(className);
+		let classList = (colorPalette).classNameToList(className);
 		for (let i = 0; i < classList.length; i += 1) {
 			if (!this.hasClass(elm, classList[i])) {
 				elm.className += (elm.className ? ' ' : '') + classList[i];
@@ -571,7 +582,7 @@ export class colorPalette extends colorPaletteOptions {
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
 	unsetClass(elm: Partial<HTMLElement>, className:string) {
-		let classList = this.classNameToList(className);
+		let classList = (colorPalette).classNameToList(className);
 		for (let i = 0; i < classList.length; i += 1) {
 			let repl = new RegExp(
 				'^\\s*' + classList[i] + '\\s*|' +
@@ -831,40 +842,23 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-
-
 	onDocumentMousedown(e: Event) {
 		if (!e) { e = window.event; }
 		let target: controlElementExt | targetElementExt = <controlElementExt | targetElementExt>(e.target || e.srcElement);
-		// let target = e.target || e.srcElement;
-
 
 		console.info(">-------------------new (testing) onDocumentMousedown-------------------<")
 
-		console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance ; should be true when clicking target; ${isTargetElementExt(target) }`);
-
-		// console.log(`testing->RESULT IS controlElementExt; Instance | ControlName'; should be true when clicking control; ${extendedElementType(target) instanceof controlElementExt }`);
-		
 		if ( isTargetElementExt(target) ) {
-			console.log(`testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance`);
-			console.info("colorPalette.onDocumentMouseDown() ; has linked instance");
+			console.log(`colorPalette.onDocumentMouseDown() ; testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance`);
 			if (target.LinkedInstance.showOnClick) {
 				console.info("colorPalette.onDocumentMouseDown() ; has showOneClick");
 				target.LinkedInstance.show();
 			}
 		} else if ( isControlElementExt(target) ) {
-			console.log(`testing->RESULT IS controlElementExt; Instance | ControlName`);
-
-			console.info("colorPalette.onDocumentMouseDown() ; has Controlname");
+			console.log(`colorPalette.onDocumentMouseDown() ; testing->RESULT IS controlElementExt; Instance | ControlName`);
 			this.onControlPointerStart(e, target, target.ControlName, 'mouse');
 		} else {
-			console.log(document.querySelectorAll("."+this.markedClass));
-			console.info(`colorPalette.onDocumentMouseDown() ; mouse is outside ; this.picker=${this.picker} ; this.picker.owner=${this.picker.owner}`);
-			// Mouse is outside the picker controls -> hide the color picker!
-			if (this.picker && this.picker.owner) {
-				console.info("colorPalette.onDocumentMouseDown() ; mouse is outside, and I am owner, !! hide !!");
-				this.picker.owner.hide();
-			}
+			(colorPalette).hideAll();
 		}
 	}
 
@@ -975,7 +969,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	onDocumentPointerEnd(e: Event, target: EventTarget, controlName: string, pointerType: pointerType) {
-		return function (e) {
+		return (e) => {
 			this.detachGroupEvents('drag');
 			this.releaseTarget();
 			// Always dispatch changes after detaching outstanding mouse handlers,
@@ -996,9 +990,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	dispatchFineChange(): void {
-		console.info(`colorPalette.dispatchFineChange()`);
 		if (this.onFineChange) {
-			console.info(`colorPalette.dispatchFineChange() ; present=${this.onFineChange}`);
 			let callback;
 			if (typeof this.onFineChange === 'string') {
 				callback = new Function(this.onFineChange);
@@ -1038,7 +1030,16 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-
+	public static hideAll() {
+		console.log(`in event hideAll; querySelectorAll->'.${(colorPalette).markedClass}'`);
+		let elements = document.querySelectorAll("." + (colorPalette).markedClass);
+		console.log("in event- hideAll; elements->");
+		for (let i = 0; i < elements.length; i++) {
+			let e = elements[i];
+			console.log(e);
+			(<any>e).owner.hide();
+		};
+	}
 
 	hide(): void {
 		if (this.isPickerOwner()) {
@@ -1463,7 +1464,8 @@ export class colorPalette extends colorPaletteOptions {
 		let padCursor = 'crosshair';
 
 		// wrap
-		this.setClass(this.picker.wrap,this.markedClass);
+		this.setClass(this.picker.wrap,(colorPalette).markedClass);
+		(<any>this.picker.wrap).owner = this;
 		this.picker.wrap.style.clear  = 'both';
 		this.picker.wrap.style.width  = (dims[0] + 2 * this.borderWidth) + 'px';
 		this.picker.wrap.style.height = (dims[1] + 2 * this.borderWidth) + 'px';
@@ -1854,7 +1856,7 @@ function tryInstallOnElements(elms, className) {
 				optsStr = m[4];
 			}
 
-			let opts = {};
+			let opts;
 			if (optsStr) {
 				try {
 					opts = (new Function('return (' + optsStr + ')'))();
@@ -1968,6 +1970,7 @@ function eventToColorPalette(event: Event) {
 	// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
 	// find ourselves a this
 	let owner: colorPalette | false = false;
+	console.trace(event);
 	if ((<any>event.target).owner) {
 		owner = (<any>event.target).owner }
 	else if ((<any>event.target).LinkedInstance) { 
@@ -1977,7 +1980,8 @@ function eventToColorPalette(event: Event) {
 		// Instance is for controlElementExt
 		owner = (<any>event.target).Instance }
 	else {
-		console.warn(`event failed, no owner found for event=${event}`);
+		console.warn(`event failed, no owner found for event=${event}; outside of palettes? hiding all`);
+		(colorPalette).hideAll();
 		return false;
 	}
 	// event.target is the element which was _CLICKED_ on
