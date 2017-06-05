@@ -30,7 +30,6 @@
     "node-sass": "^4.5.3",
     "normalize.css": "^7.0.0",
     "remove-svg-properties": "^0.3.3",
-    "ts-loader": "^2.1.0",
     "typescript": "^2.3.2",
     "webpack": "^2.6.1"
   },

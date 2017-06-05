@@ -156,10 +156,10 @@ function isControlElementExt(o: Object): o is controlElementExt {
 	return ( (<controlElementExt>o).Instance !== undefined ||
 		(<controlElementExt>o).ControlName !== undefined )
 }
-function isTargetElementExt(o: Object): o is targetElementExt {
-	return ((<targetElementExt>o).EventsAttached !== undefined ||
-		(<targetElementExt>o).LinkedInstance !== undefined)
-}
+// function isTargetElementExt(o: Object): o is targetElementExt {
+// 	return ((<targetElementExt>o).EventsAttached !== undefined ||
+// 		(<targetElementExt>o).LinkedInstance !== undefined)
+// }
 interface controlElementExt extends HTMLElement {
 	Instance?: colorPalette;
 	ControlName?: string;
@@ -440,14 +440,9 @@ export class colorPalette extends colorPaletteOptions {
 				}
 			});
 		}
-		this.attachEvent(document, 'mousedown', eventToColorPalette);
-		this.attachEvent(window, 'resize', eventToColorPalette);
-		// if (document.readyState === 'complete') {
-			// can't load until the DOM is ready
-			// this.loadElements(targetElement, options);
-		// } else {
-			this.attachDOMReadyEvent(() => { this.loadElements(targetElement, options); });
-		// }
+		this.attachEvent(document, 'mousedown', this.onDocumentMousedown.bind(this));
+		this.attachEvent(window, 'resize', this.onWindowResize.bind(this));
+		this.attachDOMReadyEvent(() => { this.loadElements(targetElement, options); });
 
 	}
 
@@ -855,20 +850,36 @@ export class colorPalette extends colorPaletteOptions {
 
 		console.info(">-------------------new (testing) onDocumentMousedown-------------------<")
 
-		if ( isTargetElementExt(target) ) {
-			console.log(`colorPalette.onDocumentMouseDown() ; testing->RESULT IS targetElementExt; EventsAttached | LinkedInstance`);
-			if (target.LinkedInstance.showOnClick) {
-				console.info("colorPalette.onDocumentMouseDown() ; has showOneClick");
-				target.LinkedInstance.show();
-			}
-		} else if ( isControlElementExt(target) ) {
-			console.log(`colorPalette.onDocumentMouseDown() ; testing->RESULT IS controlElementExt; Instance | ControlName`);
-			this.onControlPointerStart(e, target, target.ControlName, 'mouse');
+		console.info(e);
+
+		if ((<any>target).LinkedInstance) { console.log("target has Linked Instance; is targetElementExt?") };
+		if ((<any>target).EventsAttached) { console.log("target has EventsAttached; is targetElementExt?") };
+		if ((<any>target).Instance) { console.log("target has Instance; is controlElementExt?") };
+		if ((<any>target).ControlName) { console.log("target has ControlName; is controlElementExt?")};
+
+
+		if ((<controlElementExt>target).ControlName) {
+			console.log(`colorPalette.onDocumentMouseDown() ; testing->RESULT IS controlElementExt`);
+			this.onControlPointerStart(e, target, (<controlElementExt>target).ControlName, 'mouse');
+			
 		} else {
+			let testElement: targetElementExt = target;
+			for (let i = 0; i < 3; i++) {
+				console.log("trying with %s", (<any>testElement).nodeName);
+				if ( testElement.LinkedInstance ) {
+				console.log(`colorPalette.onDocumentMouseDown() ; is targetElementExt`);
+					if (testElement.LinkedInstance.showOnClick) {
+						console.info("colorPalette.onDocumentMouseDown() ; targetElementExt has showOneClick");
+						testElement.LinkedInstance.show();
+						console.log("displaying with %s",(<any>testElement).nodeName);
+						return;
+					}
+				}
+				testElement = (<any>e).path[i];
+			}
 			(colorPalette).hideAll();
 		}
 	}
-
 
 	onControlTouchStart(e: Event) {
 		if (!e) { e = window.event; }
@@ -916,8 +927,8 @@ export class colorPalette extends colorPaletteOptions {
 
 		let registerDragEvents = (doc, offset) => {
 			console.info(`controlName=${controlName}`)
-			this.attachGroupEvent('drag', doc, pointerMoveEvent[pointerType],
-				this.onDocumentPointerMove(e, target, controlName, pointerType, offset));
+			this.attachGroupEvent('drag', doc, pointerMoveEvent[pointerType], this.onDocumentPointerMove(e, target, controlName, pointerType, offset));
+			// this.attachGroupEvent('drag', doc, pointerMoveEvent[pointerType], this.onDocumentPointerMove);
 			this.attachGroupEvent('drag', doc, pointerEndEvent[pointerType],
 				this.onDocumentPointerEnd(e, target, controlName, pointerType));
 		};
@@ -951,7 +962,6 @@ export class colorPalette extends colorPaletteOptions {
 				this.setSld(e, 0);
 				break;
 		}
-
 		this.dispatchFineChange();
 	}
 
@@ -1329,7 +1339,7 @@ export class colorPalette extends colorPaletteOptions {
 				// Note: It's not just offsetParents that can be scrollable,
 				// that's why we loop through all parent nodes
 				if (!elm.EventsAttached) {
-					this.attachEvent(elm, 'scroll', this.onParentScroll);
+					this.attachEvent(elm, 'scroll', this.onParentScroll.bind(this));
 					elm.EventsAttached = true;
 				}
 			}
@@ -1380,9 +1390,9 @@ export class colorPalette extends colorPaletteOptions {
 					this.fromString(this.valueElement.value, this.leaveValue);
 					this.dispatchFineChange(this);
 				};
-				this.attachEvent(this.valueElement, 'keyup', updateField);
-				this.attachEvent(this.valueElement, 'input', updateField);
-				this.attachEvent(this.valueElement, 'blur', this.blurValue);
+				this.attachEvent(this.valueElement, 'keyup', updateField.bind(this));
+				this.attachEvent(this.valueElement, 'input', updateField.bind(this));
+				this.attachEvent(this.valueElement, 'blur', this.blurValue.bind(this));
 				this.valueElement.setAttribute('autocomplete', 'off');
 			}
 		}
@@ -1679,7 +1689,7 @@ export class colorPalette extends colorPaletteOptions {
 			container.appendChild(this.picker.wrap);
 		}
 
-		this.attachEvent(this.picker.wrap, 'touchstart', this.onControlTouchStart);
+		this.attachEvent(this.picker.wrap, 'touchstart', this.onControlTouchStart.bind(this));
 
 		console.trace(`${this.targetElement} class to ${this.activeClass}`);
 		this.setClass(this.targetElement, this.activeClass);
@@ -1818,26 +1828,26 @@ export class colorPalette extends colorPaletteOptions {
 	 */
 	attachEvent(el: EventTarget, evnt: string, func: EventListener): void {
 		if (el.addEventListener) {
-			el.addEventListener(evnt, func.bind(this), false);
-			console.group("attachEvent()");
-			console.log("element --> %O", el)
-			console.log("event ----> %O", evnt)
-			console.log("func -----> %O", func)
-			console.groupEnd();
+			el.addEventListener(evnt, func, false);
+			// console.group("attachEvent()");
+			// console.log("element --> %O", el)
+			// console.log("event ----> %O", evnt)
+			// console.log("func -----> %O", func)
+			// console.groupEnd();
 		} else if ((<any>el).attachEvent) {
 			// Use the non-standard attachEvent for old school IE
-			(<any>el).attachEvent('on' + evnt, func.bind(this));
+			(<any>el).attachEvent('on' + evnt, func);
 		}
 	}
 
 	detachEvent(el: EventTarget, evnt: string, func: EventListener): void {
 		if (el.removeEventListener) {
-			el.removeEventListener(evnt, func.bind(this), false);
-			console.group("detachEvent()");
-			console.log("element --> %O", el)
-			console.log("event ----> %O", evnt)
-			console.log("func -----> %O", func)
-			console.groupEnd();
+			el.removeEventListener(evnt, func, false);
+			// console.group("detachEvent()");
+			// console.log("element --> %O", el)
+			// console.log("event ----> %O", evnt)
+			// console.log("func -----> %O", func)
+			// console.groupEnd();
 		} else if ((<any>el).detachEvent) {
 			/// this is for IE ///
 			(<any>el).detachEvent('on' + evnt, func);
@@ -1978,42 +1988,4 @@ function HSVtoRGB(h, s, v): hsvT {
 		case 4: return [n, m, u];
 		case 5: return [u, m, n];
 	}
-}
-
-function eventToColorPalette(event: Event) {
-
-
-	console.log(this);
-	// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
-	// find ourselves a this
-	let owner: colorPalette | false = false;
-	console.trace(event);
-	if ((<any>event.target).owner) {
-		owner = (<any>event.target).owner }
-	else if ((<any>event.target).LinkedInstance) { 
-		// LinkedInstance indicates targetElementExt
-		owner = (<any>event.target).LinkedInstance }
-	else if ((<any>event.target).Instance) { 
-		// Instance is for controlElementExt
-		owner = (<any>event.target).Instance }
-	else {
-		console.warn(`event failed, no owner found for event=${event}; outside of palettes? hiding all`);
-		(colorPalette).hideAll();
-		return false;
-	}
-	// event.target is the element which was _CLICKED_ on
-	// event.currentTarget is the element which had the event _ATTACHED_
-	let attachedNode = ((<any>event.currentTarget).nodeName).
-		upperCaseFirst().
-		replace(/^[\s\uFEFF\xA0#]+|[\s\uFEFF\xA0]+$/g, '');
-	attachedNode = attachedNode.charAt(0).toUpperCase() + attachedNode.slice(1);
-	let eventType = event.type.upperCaseFirst();
-	console.log(`attachedNode=${attachedNode}`)
-	let call: string = 'on' + attachedNode + eventType;
-	console.log(`received event(`+
-		`${event} calling `+
-		`${(<any>event.target).owner}[${call}]()`);
-	
-	owner[call](event);
-	
 }
