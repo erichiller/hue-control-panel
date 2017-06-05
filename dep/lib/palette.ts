@@ -389,7 +389,7 @@ class colorPaletteOptions {
 type eventGroup = {
 	el: HTMLElement,
 	ev: string,
-	func: Function
+	func: EventListener
 }
 interface GroupEvents {
 	[GroupName: string]: eventGroup[] ;
@@ -442,12 +442,12 @@ export class colorPalette extends colorPaletteOptions {
 		}
 		this.attachEvent(document, 'mousedown', eventToColorPalette);
 		this.attachEvent(window, 'resize', eventToColorPalette);
-		if (document.readyState === 'complete') {
+		// if (document.readyState === 'complete') {
 			// can't load until the DOM is ready
-			this.loadElements(targetElement, options);
-		} else {
+			// this.loadElements(targetElement, options);
+		// } else {
 			this.attachDOMReadyEvent(() => { this.loadElements(targetElement, options); });
-		}
+		// }
 
 	}
 
@@ -497,30 +497,37 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	attachGroupEvent(groupName:string, el: HTMLElement, evnt: string, func:Function) {
-		if (!this.attachedGroupEvents.groupName) {
-			this.attachedGroupEvents.groupName = new Array({ el: el, ev: evnt, func: func });
+	attachGroupEvent(groupName: string, el: HTMLElement, evnt: string, func: EventListener): void {
+		console.group("attachGroupEvent()");
+		if (!this.attachedGroupEvents[groupName]) {
+			this.attachedGroupEvents[groupName] = new Array({ el: el, ev: evnt, func: func });
 		} else {
-			this.attachedGroupEvents.groupName.push({el: el, ev: evnt, func: func});
+			this.attachedGroupEvents[groupName].push({el: el, ev: evnt, func: func});
 		}
+		console.log("%O", this.attachedGroupEvents);
+		console.log("%O", JSON.stringify(this.attachedGroupEvents));
+		console.log(JSON.stringify(this.attachedGroupEvents));
 		this.attachEvent(el, evnt, func);
+		console.groupEnd();
 	}
 
 
-	detachGroupEvents(groupName) {
+	detachGroupEvents(groupName: string): void {
+		console.group("detachGroupEvents()");
 		console.log(`ATTEMPT in detachGroupEvents SAFELY REMOVE GROUP EVENTS FOR ${groupName}`);
-		if (this.attachedGroupEvents.groupName.length) {
-			for (let i = 0; i < this.attachedGroupEvents.groupName.length; i ++) {
-				let evt = this.attachedGroupEvents.groupName[i];
-				detachEvent(evt.el, evt.ev, evt.func);
+		if (this.attachedGroupEvents[groupName].length) {
+			for (let i = 0; i < this.attachedGroupEvents[groupName].length; i ++) {
+				let evt = this.attachedGroupEvents[groupName][i];
+				this.detachEvent(evt.el, evt.ev, evt.func);
 			}
 			console.log(`SAFELY REMOVE GROUP !!! DELETE !!! EVENTS FOR ${groupName}`);
-			delete this.attachedGroupEvents.groupName;
+			delete this.attachedGroupEvents[groupName];
 		}
+		console.groupEnd();
 	}
 
 
-	captureTarget(target) {
+	captureTarget(target: EventTarget): void {
 		// IE
 		if ((<any>target).setCapture) {
 			this.capturedTarget = target;
@@ -529,7 +536,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	releaseTarget() {
+	releaseTarget(): void {
 		// IE
 		if (this.capturedTarget) {
 			(<any>this.capturedTarget).releaseCapture();
@@ -561,7 +568,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	// The className parameter (str) can only contain a single class name
-	hasClass(elm: Partial<HTMLElement>, className:string):boolean {
+	hasClass(elm: Partial<HTMLElement>, className:string): boolean {
 		if (!className) {
 			return false;
 		}
@@ -570,7 +577,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
-	setClass(elm: Partial<HTMLElement>, className:string) {
+	setClass(elm: Partial<HTMLElement>, className:string): void {
 		let classList = (colorPalette).classNameToList(className);
 		for (let i = 0; i < classList.length; i += 1) {
 			if (!this.hasClass(elm, classList[i])) {
@@ -581,7 +588,7 @@ export class colorPalette extends colorPaletteOptions {
 
 
 	// The className parameter (str) can contain multiple class names separated by whitespace
-	unsetClass(elm: Partial<HTMLElement>, className:string) {
+	unsetClass(elm: Partial<HTMLElement>, className:string): void {
 		let classList = (colorPalette).classNameToList(className);
 		for (let i = 0; i < classList.length; i += 1) {
 			let repl = new RegExp(
@@ -600,7 +607,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	setStyle(elm: Partial<HTMLElement>, property: string, value: any) {
+	setStyle(elm: Partial<HTMLElement>, property: string, value: any): void {
 		let helper = document.createElement('div');
 		/**
 		 * Returns the first property that is supported by the current browser
@@ -630,7 +637,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	setBorderRadius(elm, value) {
+	setBorderRadius(elm, value): void {
 		this.setStyle(elm, 'borderRadius', value || '0');
 	}
 
@@ -1336,7 +1343,7 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 
-	drawPicker():void {
+	drawPicker(): void {
 		console.info("drawPicker()");
 
 		// At this point, when drawing the picker, we know what the parent elements are
@@ -1765,16 +1772,14 @@ export class colorPalette extends colorPaletteOptions {
 		};
 
 		if (document.readyState === 'complete') {
-			setTimeout(fireOnce, 1); // async
+			setTimeout(fireOnce.bind(this), 1); // async
 			return;
 		}
 
 		if (document.addEventListener) {
-			document.addEventListener('DOMContentLoaded', fireOnce, false);
-
+			document.addEventListener('DOMContentLoaded', fireOnce.bind(this), false);
 			// Fallback
-			window.addEventListener('load', fireOnce, false);
-
+			window.addEventListener('load', fireOnce.bind(this), false);
 		} else if ((<any>document).attachEvent) {
 			/// START IE code ///
 			(<any>document).attachEvent('onreadystatechange', function () {
@@ -1782,10 +1787,9 @@ export class colorPalette extends colorPaletteOptions {
 					(<any>document).detachEvent('onreadystatechange', arguments.callee);
 					fireOnce();
 				}
-			})
-
-				// Fallback
-				(<any>window).attachEvent('onload', fireOnce);
+			}.bind(this))
+			// Fallback
+			(<any>window).attachEvent('onload', fireOnce.bind(this));
 
 			// IE7/8
 			if ((<any>document).documentElement.doScroll && window == window.top) {
@@ -1812,12 +1816,31 @@ export class colorPalette extends colorPaletteOptions {
 	 * 
 	 * @memberof colorPalette
 	 */
-	attachEvent(el: EventTarget, evnt: string, func):void {
+	attachEvent(el: EventTarget, evnt: string, func: EventListener): void {
 		if (el.addEventListener) {
-			el.addEventListener(evnt, func, false);
+			el.addEventListener(evnt, func.bind(this), false);
+			console.group("attachEvent()");
+			console.log("element --> %O", el)
+			console.log("event ----> %O", evnt)
+			console.log("func -----> %O", func)
+			console.groupEnd();
 		} else if ((<any>el).attachEvent) {
 			// Use the non-standard attachEvent for old school IE
-			(<any>el).attachEvent('on' + evnt, func);
+			(<any>el).attachEvent('on' + evnt, func.bind(this));
+		}
+	}
+
+	detachEvent(el: EventTarget, evnt: string, func: EventListener): void {
+		if (el.removeEventListener) {
+			el.removeEventListener(evnt, func.bind(this), false);
+			console.group("detachEvent()");
+			console.log("element --> %O", el)
+			console.log("event ----> %O", evnt)
+			console.log("func -----> %O", func)
+			console.groupEnd();
+		} else if ((<any>el).detachEvent) {
+			/// this is for IE ///
+			(<any>el).detachEvent('on' + evnt, func);
 		}
 	}
 
@@ -1903,15 +1926,6 @@ function getDataAttr(el, name) {
 }
 
 
-function detachEvent(el, evnt, func) {
-	if (el.removeEventListener) {
-		el.removeEventListener(evnt, func, false);
-	} else if (el.detachEvent) {
-		el.detachEvent('on' + evnt, func);
-	}
-}
-
-
 // r: 0-255
 // g: 0-255
 // b: 0-255
@@ -1967,6 +1981,9 @@ function HSVtoRGB(h, s, v): hsvT {
 }
 
 function eventToColorPalette(event: Event) {
+
+
+	console.log(this);
 	// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
 	// find ourselves a this
 	let owner: colorPalette | false = false;

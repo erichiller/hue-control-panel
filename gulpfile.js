@@ -61,6 +61,7 @@ gulp.task("build-dev", ["webpack-build-dev", "svg-html-inject", "build-scss", "c
 	gulp.watch(["dep/resource/**"], ["copy-resources"]);
 });
 
+const { CheckerPlugin } = require('awesome-typescript-loader')
 gulp.task("webpack-build-dev", function (callback) {
 	var myConfig = Object.create({
 		entry: [
@@ -84,11 +85,13 @@ gulp.task("webpack-build-dev", function (callback) {
 					// https://www.npmjs.com/package/ts-loader
 					test: /\.tsx?$/,
 					exclude: /node_modules/,
-					loader: "ts-loader"
+					// loader: "ts-loader"
+					loader: "awesome-typescript-loader"
 				}
 			],
 		},
 		plugins: [
+			new CheckerPlugin(),
 			new webpack.DefinePlugin({
 				"process.env": {
 					// This has effect on the react lib size
