@@ -18,7 +18,8 @@ let palette = new colorPalette("colorPalette", {
 	padding: 2,
 	borderWidth: 1,
 	position: 'top',
-	activeClass: "eric-rocks"
+	width: 280,
+	height: 330,
 },
 true);
 
@@ -51,16 +52,6 @@ function startup() {
 	let navigateHome: HTMLElement = <HTMLElement>document.querySelector("#navigate-home");
 	navigateHome.addEventListener("click", () => { document.querySelector("#main").classList.toggle("rotate") } );
 
-
-	document.querySelector("#test_el_targeting").addEventListener("click",function(ev: MouseEvent){
-		
-		console.log("I've been clicked");
-		console.log(`nodename=${(<any>ev.target).nodeName} ;; nodeID=${(<any>ev.target).id}`);
-		console.log(ev);
-		console.log("---end---I've been clicked---");
-
-	});
-	
 
 }
 

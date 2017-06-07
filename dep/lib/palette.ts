@@ -424,9 +424,8 @@ export class colorPalette extends colorPaletteOptions {
 	rgb: rgbT = [255, 255, 255]; // read-only  [0-255, 0-255, 0-255]
 
 	/**
-	 * Previously was - palettejs : function (targetElement, options) {
 	 * Usage:
-	 * let myColor = new palettejs(<targetElement> [, <options>])
+	 * let myColor = new colorPalette(<targetElement> [, <options>])
 	 * @param targetElement 
 	 * @param options 
 	 */
@@ -719,35 +718,47 @@ export class colorPalette extends colorPaletteOptions {
 	}
 
 	redrawPosition() {
-		console.info('colorPalette.redrawPosition()');
-
-		// if (this.picker && this.picker.owner) {
-		// let thisObj = this.picker.owner;
+		console.group('colorPalette.redrawPosition()');
 
 		let tp, vp;
 
 		if (this.fixed) {
+			console.info("is fixed");
 			// Fixed elements are positioned relative to viewport,
 			// therefore we can ignore the scroll offset
 			tp = this.getElementPos(this.targetElement, true); // target pos
-			vp = [0, 0]; // view pos
+			vp = [0,0];	                                       // view   pos
 		} else {
-			tp = this.getElementPos(this.targetElement); // target pos
-			vp = this.getViewPos(); // view pos
+			tp = this.getElementPos(this.targetElement);       // target pos
+			vp = this.getViewPos();                            // view   pos
 		}
+		console.info("tp ( target position ) = %O", tp);
+		console.info("vp ( view position )   = %O", vp);
 
-		let ts = this.getElementSize(this.targetElement); // target size
-		let vs = this.getViewSize(); // view size
-		let ps = this.getPickerOuterDims(); // picker size
+		let ts = this.getElementSize(this.targetElement);      // target size
+		let vs = this.getViewSize();                           // view   size
+		let ps = this.getPickerOuterDims();                    // picker size
+
+
+		console.info("ts ( target size ) = %O", ts);
+		console.info("vs ( view   size ) = %O", vs);
+		console.info("ps ( picker size ) = %O", ps);
+
+
 		let a, b, c;
 		switch (this.position.toLowerCase()) {
-			case 'left': a = 1; b = 0; c = -1; break;
-			case 'right': a = 1; b = 0; c = 1; break;
-			case 'top': a = 0; b = 1; c = -1; break;
-			default: a = 0; b = 1; c = 1; break;
+			case 'left' : a = 1 ; b =  0; c =  -1; break;
+			case 'right': a = 1 ; b =  0; c =  1 ; break;
+			case 'top'  : a = 0 ; b =  1; c =  -1; break;
+			default     : a = 0 ; b =  1; c =  1 ; break;
 		}
 		let l = (ts[b] + ps[b]) / 2;
 		let pp: number[];
+
+
+		console.info("a (  ) = %O", a);
+		console.info("b (  ) = %O", b);
+		console.info("c (  ) = %O", c);
 
 		// compute picker position
 		if (!this.smartPosition) {
@@ -759,8 +770,16 @@ export class colorPalette extends colorPaletteOptions {
 		} else {
 			console.info('colorPalette.redrawPosition() ; this.smartPosition = true');
 			pp = [
+				// is the viewer smaller than target position + picker size
 				-vp[a] + tp[a] + ps[a] > vs[a] ?
-					(-vp[a] + tp[a] + ts[a] / 2 > vs[a] / 2 && tp[a] + ts[a] - ps[a] >= 0 ? tp[a] + ts[a] - ps[a] : tp[a]) :
+				// if yes - test if target position + half of target size is greater than half of viewport size AND 
+					// target positon plus target size minus  picker size is greater than or equal to zero.
+						// if yes set to target position plus target size minus picker size
+						// if no set to viewsize minus picker size divided by two.
+				// if no set to target position
+					// was:
+					// 	(-vp[a] + tp[a] + ts[a] / 2 > vs[a] / 2 && tp[a] + ts[a] - ps[a] >= 0 ? tp[a] + ts[a] - ps[a] : tp[a]) :
+					(-vp[a] + tp[a] + ts[a] / 2 > vs[a] / 2 && tp[a] + ts[a] - ps[a] >= 0 ? tp[a] + ts[a] - ps[a] : ( vs[a] - ps[a] ) / 2 ) :
 					tp[a],
 				-vp[b] + tp[b] + ts[b] + ps[b] - l + l * c > vs[b] ?
 					(-vp[b] + tp[b] + ts[b] / 2 > vs[b] / 2 && tp[b] + ts[b] - l - l * c >= 0 ? tp[b] + ts[b] - l - l * c : tp[b] + ts[b] - l + l * c) :
@@ -776,6 +795,7 @@ export class colorPalette extends colorPaletteOptions {
 			(pp[1] + ps[1] < tp[1] + ts[1]);
 
 		this.drawPosition(x, y, positionValue, contractShadow);
+		console.groupEnd();
 	}
 
 
@@ -1866,7 +1886,11 @@ function installByClassName(className: string) {
 	tryInstallOnElements(buttonElms, className);
 };
 
-
+/**
+ * Installation of a palette will be performed onto the indicated elements (see parameters) - options can be specified using hte string colorPalette-options="{json string of options}" on the element;
+ * @param elms install on these elements
+ * @param className install on elements with this className
+ */
 function tryInstallOnElements(elms, className) {
 	let matchClass = new RegExp('(^|\\s)(' + className + ')(\\s*(\\{[^}]*\\})|\\s|$)', 'i');
 
@@ -1878,11 +1902,11 @@ function tryInstallOnElements(elms, className) {
 			}
 		}
 		let m;
-		if (!elms[i].palettejs && elms[i].className && (m = elms[i].className.match(matchClass))) {
+		if (!elms[i].colorPalette && elms[i].className && (m = elms[i].className.match(matchClass))) {
 			let targetElm = elms[i];
 			let optsStr = null;
 
-			let dataOptions = getDataAttr(targetElm, 'palettejs');
+			let dataOptions = getDataAttr(targetElm, 'colorPalette-options');
 			if (dataOptions !== null) {
 				optsStr = dataOptions;
 			} else if (m[4]) {
@@ -1894,10 +1918,10 @@ function tryInstallOnElements(elms, className) {
 				try {
 					opts = (new Function('return (' + optsStr + ')'))();
 				} catch (eParseError) {
-					console.warn('Error parsing palettejs options: ' + eParseError + ':\n' + optsStr);
+					console.warn('Error parsing colorPalette options: ' + eParseError + ':\n' + optsStr);
 				}
 			}
-			targetElm.palettejs = new colorPalette(targetElm, opts);
+			targetElm.colorPalette = new colorPalette(targetElm, opts);
 		}
 	}
 }
