@@ -1,15 +1,18 @@
 // Base
 @import '../node_modules/normalize.css/normalize.css';
-// @import 'base/variables';
 // @import 'base/utilities';
+// @import 'base/variables';
+@import 'base/common_mixins';
 @import 'base/font';
 @import 'base/global';
 
 @import 'components/button';
 @import 'components/card_rotate';
 @import 'components/colorpicker';
-@import 'components/common_mixins';
+@import 'components/range';
 
-@import 'page/page_structure';
-@import 'page/main';
+@import 'layout/layout';
+
 @import 'page/home_map';
+@import 'page/home_room';
+@import 'page/main';
